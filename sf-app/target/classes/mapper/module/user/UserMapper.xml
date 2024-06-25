@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.tunie.sf.module.user.domain.UserDao">
+    <update id="bindParent">
+        update t_user
+        set parent_id = #{parentId}
+        where id = #{userId}
+    </update>
+
+
+    <!-- 查看类目 -->
+    <select id="selectByUserNameOrMobile" resultType="net.tunie.sf.module.user.domain.UserEntity">
+        SELECT * FROM t_user
+        <where>
+            <if test="userName != null">
+                AND name = #{userName}
+            </if>
+            <if test="mobile != null">
+                AND mobile = #{mobile}
+            </if>
+        </where>
+        LIMIT 1
+    </select>
+
+</mapper>

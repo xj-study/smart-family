@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.tunie.sf.module.task.domain.dao.TaskRecordDao">
+
+    <select id="queryDailyTaskRecord" resultType="net.tunie.sf.module.task.domain.vo.TaskRecordVo">
+        select T.*, coalesce(R.status, 0) as status, R.id, R.task_date
+        from t_task as T
+                 left join t_task_record as R
+                           on T.task_id = R.task_id and R.user_id = #{selfUserId} and
+                              R.task_date = #{taskDate}
+        where T.user_id = #{userId}
+    </select>
+</mapper>

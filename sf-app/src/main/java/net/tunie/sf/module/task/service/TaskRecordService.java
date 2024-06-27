@@ -14,6 +14,7 @@ import net.tunie.sf.module.task.domain.dao.TaskRecordDao;
 import net.tunie.sf.module.task.domain.entity.TaskEntity;
 import net.tunie.sf.module.task.domain.entity.TaskRecordEntity;
 import net.tunie.sf.module.task.domain.form.TaskRecordCompleteForm;
+import net.tunie.sf.module.task.domain.form.TaskRecordQueryForm;
 import net.tunie.sf.module.task.domain.vo.TaskRecordVo;
 import org.springframework.stereotype.Service;
 
@@ -28,17 +29,22 @@ public class TaskRecordService {
     @Resource
     private TaskDao taskDao;
 
-    public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(RequestUser requestUser, LocalDate localDate) {
-        Long userId = requestUser.getUserId();
+    public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(RequestUser requestUser, LocalDate localDate, TaskRecordQueryForm taskRecordQueryForm) {
+        Long taskUserId = requestUser.getUserId();
         if (SmartUserUtil.getUserChildFlag(requestUser.getType())) {
-            userId = requestUser.getParentId();
+            taskUserId = requestUser.getParentId();
         }
 
-        List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(userId, requestUser.getUserId(), localDate);
+        Long recordUserId = requestUser.getUserId();
+        if (taskRecordQueryForm.getId() != null) {
+            recordUserId = taskRecordQueryForm.getId();
+        }
+
+        List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(taskUserId, recordUserId, localDate);
         return ResponseDTO.ok(taskRecordVos);
     }
 
-    public ResponseDTO<String> updateTaskStatus(Long id, Integer status) {
+    public ResponseDTO<Integer> updateTaskStatus(Long id, Integer status) {
         TaskRecordEntity taskRecordEntity = taskRecordDao.selectById(id);
         if (taskRecordEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
@@ -56,12 +62,12 @@ public class TaskRecordService {
         newTaskRecordEntity.setId(id);
         newTaskRecordEntity.setStatus(status);
         taskRecordDao.updateById(newTaskRecordEntity);
-        return ResponseDTO.ok();
+        return ResponseDTO.ok(newTaskRecordEntity.getStatus());
     }
 
-    public ResponseDTO<Long> updateTaskStatus(TaskRecordCompleteForm taskRecordCompleteForm) {
-        if (taskRecordCompleteForm.getStatus() == null) {
-            taskRecordCompleteForm.setStatus(TaskStatusConst.INIT);
+    public ResponseDTO<Integer> updateTaskStatus(TaskRecordCompleteForm taskRecordCompleteForm) {
+        if (taskRecordCompleteForm.getTaskDate() == null) {
+            taskRecordCompleteForm.setTaskDate(LocalDate.now());
         }
         TaskRecordEntity queryTaskRecordEntity = new TaskRecordEntity();
         queryTaskRecordEntity.setTaskId(taskRecordCompleteForm.getTaskId());
@@ -70,14 +76,14 @@ public class TaskRecordService {
         QueryWrapper<TaskRecordEntity> query = Wrappers.query(queryTaskRecordEntity);
         TaskRecordEntity selectOne = taskRecordDao.selectOne(query);
         if (selectOne != null) {
-            this.updateTaskStatus(selectOne.getId(), taskRecordCompleteForm.getStatus());
+            return this.updateTaskStatus(selectOne.getId(), taskRecordCompleteForm.getStatus());
         } else {
 
             TaskRecordEntity taskRecordEntity = SmartBeanUtil.copy(taskRecordCompleteForm, TaskRecordEntity.class);
+            taskRecordEntity.setStatus(TaskStatusConst.INIT);
             taskRecordDao.insert(taskRecordEntity);
+            return this.updateTaskStatus(taskRecordEntity.getId(), taskRecordCompleteForm.getStatus());
         }
-
-        return ResponseDTO.ok();
 
     }
 

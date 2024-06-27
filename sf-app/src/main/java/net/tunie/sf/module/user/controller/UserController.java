@@ -42,4 +42,10 @@ public class UserController {
     public ResponseDTO<String> update(@RequestBody UserUpdateForm userUpdateForm) {
         return userService.updateUser(userUpdateForm);
     }
+
+    @GetMapping("/user/children/query")
+    public ResponseDTO<List<UserVo>> queryChildren() {
+        Long requestUserId = SmartRequestUtil.getRequestUserId();
+        return userService.queryChildren(requestUserId);
+    }
 }

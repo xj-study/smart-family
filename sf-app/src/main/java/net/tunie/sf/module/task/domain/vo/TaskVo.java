@@ -15,4 +15,6 @@ public class TaskVo {
     private String content;
 
     private LocalDateTime createTime;
+
+    private Boolean verifyFlag;
 }

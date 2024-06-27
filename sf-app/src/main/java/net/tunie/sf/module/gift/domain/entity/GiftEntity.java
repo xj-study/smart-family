@@ -16,7 +16,7 @@ public class GiftEntity {
 
     private Long userId;
 
-    private String name;
+    private String title;
 
     private String content;
 

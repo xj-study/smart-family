@@ -24,7 +24,7 @@ public class LoginService {
             return ResponseDTO.userErrorParams("用户密码不存在");
         }
 
-        UserEntity userEntity = userService.getUserByNameOrMobile(loginForm.getUserName(), loginForm.getMobile());
+        UserEntity userEntity = userService.getUserByNameOrMobile(loginForm.getUserName(), loginForm.getUserName());
         if (null == userEntity) {
             return ResponseDTO.userErrorParams("用户不存在");
         }

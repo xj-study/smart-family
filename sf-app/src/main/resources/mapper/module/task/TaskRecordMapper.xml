@@ -6,8 +6,8 @@
         select T.*, coalesce(R.status, 0) as status, R.id, R.task_date
         from t_task as T
                  left join t_task_record as R
-                           on T.task_id = R.task_id and R.user_id = #{selfUserId} and
+                           on T.task_id = R.task_id and R.user_id = #{recordUserId} and
                               R.task_date = #{taskDate}
-        where T.user_id = #{userId}
+        where T.user_id = #{taskUserId}
     </select>
 </mapper>

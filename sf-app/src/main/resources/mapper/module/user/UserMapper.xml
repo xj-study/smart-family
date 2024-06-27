@@ -16,7 +16,7 @@
                 AND name = #{userName}
             </if>
             <if test="mobile != null">
-                AND mobile = #{mobile}
+                OR mobile = #{mobile}
             </if>
         </where>
         LIMIT 1

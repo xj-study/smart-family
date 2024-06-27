@@ -7,6 +7,7 @@ import net.tunie.sf.common.utils.SmartUserUtil;
 import net.tunie.sf.constant.TaskStatusConst;
 import net.tunie.sf.module.login.domain.RequestUser;
 import net.tunie.sf.module.task.domain.form.TaskRecordCompleteForm;
+import net.tunie.sf.module.task.domain.form.TaskRecordQueryForm;
 import net.tunie.sf.module.task.domain.vo.TaskRecordVo;
 import net.tunie.sf.module.task.service.TaskRecordService;
 import org.apache.ibatis.annotations.Param;
@@ -21,21 +22,22 @@ public class TaskRecordController {
     @Resource
     private TaskRecordService taskRecordService;
 
-    @GetMapping("/task/record/query")
-    public ResponseDTO<List<TaskRecordVo>> query() {
+    @PostMapping("/task/record/query")
+    public ResponseDTO<List<TaskRecordVo>> query(@RequestBody TaskRecordQueryForm taskRecordQueryForm) {
         RequestUser requestUser = SmartRequestUtil.getRequestUser();
         LocalDate now = LocalDate.now();
-        return taskRecordService.queryDailyTaskRecord(requestUser, now);
+        return taskRecordService.queryDailyTaskRecord(requestUser, now, taskRecordQueryForm);
     }
 
     @GetMapping("/task/record/complete/{id}")
-    public ResponseDTO<String> complete(@PathVariable Long id) {
+    public ResponseDTO<Integer> complete(@PathVariable Long id) {
         return taskRecordService.updateTaskStatus(id, TaskStatusConst.COMPLETE);
     }
 
     @PostMapping("/task/record/complete")
-    public ResponseDTO<Long> complete(@RequestBody TaskRecordCompleteForm taskRecordCompleteForm) {
+    public ResponseDTO<Integer> complete(@RequestBody TaskRecordCompleteForm taskRecordCompleteForm) {
         taskRecordCompleteForm.setUserId(SmartRequestUtil.getRequestUserId());
+        taskRecordCompleteForm.setStatus(TaskStatusConst.COMPLETE);
         return taskRecordService.updateTaskStatus(taskRecordCompleteForm);
     }
 

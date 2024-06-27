@@ -1,6 +1,11 @@
 package net.tunie.sf.module.user.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.Query;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
+import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.module.user.domain.*;
@@ -51,5 +56,13 @@ public class UserService {
         }
         userDao.bindParent(userId, parentId);
         return ResponseDTO.ok();
+    }
+
+    public ResponseDTO<List<UserVo>> queryChildren(Long parentId) {
+        QueryWrapper<UserEntity> queryWrapper = Wrappers.query();
+        queryWrapper.eq("parent_id", parentId);
+        List<UserEntity> userEntities = userDao.selectList(queryWrapper);
+        List<UserVo> userVos = SmartBeanUtil.copyList(userEntities, UserVo.class);
+        return ResponseDTO.ok(userVos);
     }
 }

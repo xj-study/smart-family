@@ -14,5 +14,5 @@ import java.util.List;
 @Component
 public interface TaskRecordDao extends BaseMapper<TaskRecordEntity> {
 
-    List<TaskRecordVo> queryDailyTaskRecord(@Param("userId") Long userId, @Param("selfUserId") Long selfUserId, @Param("taskDate") LocalDate taskDate);
+    List<TaskRecordVo> queryDailyTaskRecord(@Param("taskUserId") Long taskUserId, @Param("recordUserId") Long recordUserId, @Param("taskDate") LocalDate taskDate);
 }

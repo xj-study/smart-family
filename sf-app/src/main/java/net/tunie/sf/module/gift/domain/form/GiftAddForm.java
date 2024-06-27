@@ -7,7 +7,7 @@ public class GiftAddForm {
 
     private Long userId;
 
-    private String name;
+    private String title;
 
     private String content;
 

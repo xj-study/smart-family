@@ -40,7 +40,7 @@ public class TaskRecordService {
             recordUserId = taskRecordQueryForm.getId();
         }
 
-        List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(taskUserId, recordUserId, localDate);
+        List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(taskUserId, recordUserId, localDate, taskRecordQueryForm.getStatus());
         return ResponseDTO.ok(taskRecordVos);
     }
 

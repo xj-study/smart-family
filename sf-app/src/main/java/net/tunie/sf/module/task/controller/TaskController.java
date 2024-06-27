@@ -28,10 +28,7 @@ public class TaskController {
 
     @GetMapping("/task/query")
     public ResponseDTO<List<TaskVo>> query() {
-        RequestUser requestUser = SmartRequestUtil.getRequestUser();
-        boolean userChildFlag = SmartUserUtil.getUserChildFlag(requestUser.getType());
-        long requestUserId = userChildFlag ? requestUser.getParentId() : requestUser.getUserId();
-        return taskService.queryTask(requestUserId);
+        return taskService.queryTask(SmartRequestUtil.getRequestUserId());
     }
 
     @PostMapping("/task/update")

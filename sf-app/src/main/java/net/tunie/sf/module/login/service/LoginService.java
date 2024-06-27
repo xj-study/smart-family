@@ -5,11 +5,10 @@ import jakarta.annotation.Resource;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.common.utils.SmartUserUtil;
-import net.tunie.sf.constant.UserTypeConst;
 import net.tunie.sf.module.login.domain.LoginForm;
 import net.tunie.sf.module.login.domain.LoginResultVo;
 import net.tunie.sf.module.login.domain.RequestUser;
-import net.tunie.sf.module.user.domain.UserEntity;
+import net.tunie.sf.module.user.domain.entity.UserEntity;
 import net.tunie.sf.module.user.service.UserService;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,7 @@
 package net.tunie.sf.common.utils;
 
 import net.tunie.sf.constant.UserTypeConst;
-import net.tunie.sf.module.user.domain.UserEntity;
+import net.tunie.sf.module.user.domain.entity.UserEntity;
 
 public class SmartUserUtil {
 

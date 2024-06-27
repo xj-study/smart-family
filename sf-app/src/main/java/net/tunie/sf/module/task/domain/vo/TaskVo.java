@@ -17,4 +17,6 @@ public class TaskVo {
     private LocalDateTime createTime;
 
     private Boolean verifyFlag;
+
+    private Integer integral;
 }

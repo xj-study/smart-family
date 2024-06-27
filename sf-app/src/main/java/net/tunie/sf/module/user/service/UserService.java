@@ -1,14 +1,15 @@
 package net.tunie.sf.module.user.service;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.Query;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
-import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
-import net.tunie.sf.module.user.domain.*;
+import net.tunie.sf.module.user.domain.dao.UserDao;
+import net.tunie.sf.module.user.domain.entity.UserEntity;
+import net.tunie.sf.module.user.domain.form.UserAddForm;
+import net.tunie.sf.module.user.domain.form.UserUpdateForm;
+import net.tunie.sf.module.user.domain.vo.UserVo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,8 +26,8 @@ public class UserService {
 
     public ResponseDTO<UserVo> queryDetail(Long id) {
         UserEntity userEntity = userDao.selectById(id);
-        UserVo giftVo = SmartBeanUtil.copy(userEntity, UserVo.class);
-        return ResponseDTO.ok(giftVo);
+        UserVo userVo = SmartBeanUtil.copy(userEntity, UserVo.class);
+        return ResponseDTO.ok(userVo);
     }
 
     public ResponseDTO<List<UserVo>> queryUser() {

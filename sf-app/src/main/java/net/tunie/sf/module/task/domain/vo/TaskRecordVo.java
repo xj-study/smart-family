@@ -18,4 +18,6 @@ public class TaskRecordVo {
 
     private Integer status;
 
+    private Integer integral;
+
 }

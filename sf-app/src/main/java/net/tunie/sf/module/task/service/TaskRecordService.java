@@ -8,14 +8,19 @@ import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.common.utils.SmartUserUtil;
 import net.tunie.sf.constant.TaskStatusConst;
+import net.tunie.sf.constant.UserIntegralRecordTypeConst;
 import net.tunie.sf.module.login.domain.RequestUser;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
+import net.tunie.sf.module.task.domain.dao.TaskIntegralDao;
 import net.tunie.sf.module.task.domain.dao.TaskRecordDao;
 import net.tunie.sf.module.task.domain.entity.TaskEntity;
+import net.tunie.sf.module.task.domain.entity.TaskIntegralEntity;
 import net.tunie.sf.module.task.domain.entity.TaskRecordEntity;
 import net.tunie.sf.module.task.domain.form.TaskRecordCompleteForm;
 import net.tunie.sf.module.task.domain.form.TaskRecordQueryForm;
 import net.tunie.sf.module.task.domain.vo.TaskRecordVo;
+import net.tunie.sf.module.user.domain.form.UserIntegralUpdateForm;
+import net.tunie.sf.module.user.service.UserIntegralService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,6 +33,12 @@ public class TaskRecordService {
 
     @Resource
     private TaskDao taskDao;
+
+    @Resource
+    private TaskIntegralDao taskIntegralDao;
+
+    @Resource
+    private UserIntegralService userIntegralService;
 
     public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(RequestUser requestUser, LocalDate localDate, TaskRecordQueryForm taskRecordQueryForm) {
         Long taskUserId = requestUser.getUserId();
@@ -62,6 +73,19 @@ public class TaskRecordService {
         newTaskRecordEntity.setId(id);
         newTaskRecordEntity.setStatus(status);
         taskRecordDao.updateById(newTaskRecordEntity);
+
+        // 更新积分
+        if(TaskStatusConst.COMPLETE == status) {
+            TaskIntegralEntity taskIntegralEntity = taskIntegralDao.selectById(taskRecordEntity.getTaskId());
+
+            UserIntegralUpdateForm userIntegralUpdateForm = new UserIntegralUpdateForm();
+            userIntegralUpdateForm.setIntegralChange(taskIntegralEntity.getIntegral());
+            userIntegralUpdateForm.setUserId(taskRecordEntity.getUserId());
+            userIntegralUpdateForm.setRefType(UserIntegralRecordTypeConst.TASK);
+            userIntegralUpdateForm.setRefId(id);
+            userIntegralService.update(userIntegralUpdateForm);
+        }
+
         return ResponseDTO.ok(newTaskRecordEntity.getStatus());
     }
 

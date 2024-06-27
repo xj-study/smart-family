@@ -3,9 +3,9 @@ package net.tunie.sf.module.user.controller;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartRequestUtil;
-import net.tunie.sf.module.user.domain.UserAddForm;
-import net.tunie.sf.module.user.domain.UserUpdateForm;
-import net.tunie.sf.module.user.domain.UserVo;
+import net.tunie.sf.module.user.domain.form.UserAddForm;
+import net.tunie.sf.module.user.domain.form.UserUpdateForm;
+import net.tunie.sf.module.user.domain.vo.UserVo;
 import net.tunie.sf.module.user.service.UserService;
 import org.springframework.web.bind.annotation.*;
 

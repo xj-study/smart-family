@@ -7,7 +7,9 @@ import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
+import net.tunie.sf.module.task.domain.dao.TaskIntegralDao;
 import net.tunie.sf.module.task.domain.entity.TaskEntity;
+import net.tunie.sf.module.task.domain.entity.TaskIntegralEntity;
 import net.tunie.sf.module.task.domain.form.TaskAddForm;
 import net.tunie.sf.module.task.domain.form.TaskUpdateForm;
 import net.tunie.sf.module.task.domain.vo.TaskVo;
@@ -21,20 +23,24 @@ public class TaskService {
     @Resource
     private TaskDao taskDao;
 
+    @Resource
+    private TaskIntegralDao taskIntegralDao;
+
     public ResponseDTO<String> addTask(TaskAddForm taskAddForm) {
         TaskEntity taskEntity = SmartBeanUtil.copy(taskAddForm, TaskEntity.class);
         taskDao.insert(taskEntity);
+
+        TaskIntegralEntity taskIntegralEntity = new TaskIntegralEntity();
+        taskIntegralEntity.setTaskId(taskEntity.getTaskId());
+        taskIntegralEntity.setIntegral(taskAddForm.getIntegral());
+        taskIntegralDao.insert(taskIntegralEntity);
 
         return ResponseDTO.ok();
     }
 
     public ResponseDTO<List<TaskVo>> queryTask(Long requestUserId) {
-        QueryWrapper<TaskEntity> queryWrapper = Wrappers.query();
-        queryWrapper.eq("user_id", requestUserId);
-        queryWrapper.eq("disable_flag", 0);
-        List<TaskEntity> taskUserEntities = taskDao.selectList(queryWrapper);
-        List<TaskVo> taskUserVos = SmartBeanUtil.copyList(taskUserEntities, TaskVo.class);
-        return ResponseDTO.ok(taskUserVos);
+        List<TaskVo> taskVos = taskDao.queryTask(requestUserId, false);
+        return ResponseDTO.ok(taskVos);
     }
 
     public ResponseDTO<String> updateTask(TaskUpdateForm taskUpdateForm) {
@@ -49,6 +55,16 @@ public class TaskService {
 
         TaskEntity updateTaskEntity = SmartBeanUtil.copy(taskUpdateForm, TaskEntity.class);
         taskDao.updateById(updateTaskEntity);
+
+        TaskIntegralEntity taskIntegralEntity = taskIntegralDao.selectById(taskUpdateForm.getTaskId());
+        if (taskIntegralEntity == null) {
+            taskIntegralEntity = SmartBeanUtil.copy(taskUpdateForm, TaskIntegralEntity.class);
+            taskIntegralDao.insert(taskIntegralEntity);
+        } else {
+            taskIntegralEntity.setIntegral(taskUpdateForm.getIntegral());
+            taskIntegralDao.updateById(taskIntegralEntity);
+        }
+
         return ResponseDTO.ok();
     }
 

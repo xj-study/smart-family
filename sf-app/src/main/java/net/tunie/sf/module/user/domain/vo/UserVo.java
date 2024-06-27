@@ -1,4 +1,4 @@
-package net.tunie.sf.module.user.domain;
+package net.tunie.sf.module.user.domain.vo;
 
 import lombok.Data;
 

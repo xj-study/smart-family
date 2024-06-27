@@ -1,4 +1,4 @@
-package net.tunie.sf.module.user.domain;
+package net.tunie.sf.module.user.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

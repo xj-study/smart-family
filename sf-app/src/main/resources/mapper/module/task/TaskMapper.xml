@@ -6,7 +6,15 @@
     <update id="updateDisableFlag">
         update t_task
         set disable_flag = #{disableFlag}
-        where task_id =  #{id}
+        where task_id = #{id}
     </update>
+
+    <select id="queryTask" resultType="net.tunie.sf.module.task.domain.vo.TaskVo">
+        select T.*,  coalesce(I.integral, 0) as integral
+        from t_task as T
+                 left join t_task_integral as I on T.task_id = I.task_id
+        where t.user_id = #{userId}
+          and t.disable_flag = #{disableFlag}
+    </select>
 
 </mapper>

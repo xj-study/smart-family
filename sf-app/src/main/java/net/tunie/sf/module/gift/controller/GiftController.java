@@ -21,25 +21,25 @@ public class GiftController {
     public ResponseDTO<String> add(@RequestBody GiftAddForm giftAddForm) {
         Long requestUserId = SmartRequestUtil.getRequestUserId();
         giftAddForm.setUserId(requestUserId);
-        return giftService.addGiftUser(giftAddForm);
+        return giftService.addGift(giftAddForm);
     }
 
     @GetMapping("/gift/{id}/query")
     public ResponseDTO<GiftVo> queryDetail(@PathVariable long id) {
-        return giftService.queryGiftUserDetail(id);
+        return giftService.queryGiftDetail(id);
     }
 
     @GetMapping("/gift/query")
     public ResponseDTO<List<GiftVo>> query() {
-        Long requestUserId = SmartRequestUtil.getRequestUserId();
-        return giftService.queryGiftUser(requestUserId);
+        Long userId = SmartRequestUtil.getUserParentId();
+        return giftService.queryGift(userId);
     }
 
     @PostMapping("/gift/update")
     public ResponseDTO<String> update(@RequestBody GiftUpdateForm giftUpdateForm) {
         Long requestUserId = SmartRequestUtil.getRequestUserId();
         giftUpdateForm.setUserId(requestUserId);
-        return giftService.updateGiftUser(giftUpdateForm);
+        return giftService.updateGift(giftUpdateForm);
     }
 
 

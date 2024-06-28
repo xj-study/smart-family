@@ -1,4 +1,4 @@
-package net.tunie.sf.module.gift.domain.entity;
+package net.tunie.sf.module.system.record.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -8,19 +8,18 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("t_gift")
-public class GiftEntity {
-
+@TableName("t_record")
+public class RecordEntity {
     @TableId(type = IdType.AUTO)
-    private Long giftId;
+    private Long id;
+
+    private Long refId;
+
+    private Integer refType;
 
     private Long userId;
 
-    private String name;
-
     private String content;
-
-    private Double price;
 
     private LocalDateTime createTime;
 

@@ -9,7 +9,7 @@ public class GiftVo {
 
     private Long giftId;
 
-    private String title;
+    private String name;
 
     private String content;
 

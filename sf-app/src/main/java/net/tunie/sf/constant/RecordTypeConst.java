@@ -1,6 +1,6 @@
 package net.tunie.sf.constant;
 
-public class UserIntegralRecordTypeConst {
+public class RecordTypeConst {
 
     /**
      * 任务

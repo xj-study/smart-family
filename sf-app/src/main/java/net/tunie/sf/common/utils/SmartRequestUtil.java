@@ -10,16 +10,28 @@ public class SmartRequestUtil {
         REQUEST_THREAD_LOCAL.set(user);
     }
 
-    public static RequestUser getRequestUser(){
+    public static RequestUser getRequestUser() {
         return REQUEST_THREAD_LOCAL.get();
     }
 
-    public static Long getRequestUserId(){
+    public static Long getRequestUserId() {
         RequestUser requestUser = getRequestUser();
         return requestUser == null ? null : requestUser.getUserId();
     }
 
-    public static void remove(){
+    public static Long getUserParentId() {
+        RequestUser requestUser = getRequestUser();
+        if (requestUser == null) {
+            return null;
+        }
+        Long userId = requestUser.getParentId();
+        if (userId == -1) {
+            userId = requestUser.getUserId();
+        }
+        return userId;
+    }
+
+    public static void remove() {
         REQUEST_THREAD_LOCAL.remove();
     }
 }

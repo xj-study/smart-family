@@ -15,6 +15,8 @@ public class UserIntegralRecordVo {
 
     private Integer refType;
 
+    private String content;
+
     private LocalDateTime updateTime;
 
     private LocalDateTime createTime;

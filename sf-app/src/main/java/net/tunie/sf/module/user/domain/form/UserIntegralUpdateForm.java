@@ -14,5 +14,7 @@ public class UserIntegralUpdateForm {
 
     private Integer refType;
 
+    private String content;
+
 
 }

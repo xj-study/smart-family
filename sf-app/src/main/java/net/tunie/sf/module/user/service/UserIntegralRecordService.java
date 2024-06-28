@@ -23,12 +23,7 @@ public class UserIntegralRecordService {
     }
 
     public ResponseDTO<List<UserIntegralRecordVo>> queryRecord(Long requestUserId) {
-        QueryWrapper<UserIntegralRecordEntity> queryWrapper = Wrappers.query();
-        queryWrapper.eq("user_id", requestUserId);
-        List<UserIntegralRecordEntity> userIntegralRecordEntities = userIntegralRecordDao.selectList(queryWrapper);
-
-        List<UserIntegralRecordVo> userIntegralRecordVos = SmartBeanUtil.copyList(userIntegralRecordEntities, UserIntegralRecordVo.class);
-
+        List<UserIntegralRecordVo> userIntegralRecordVos = userIntegralRecordDao.selectRecords(requestUserId);
         return ResponseDTO.ok(userIntegralRecordVos);
     }
 }

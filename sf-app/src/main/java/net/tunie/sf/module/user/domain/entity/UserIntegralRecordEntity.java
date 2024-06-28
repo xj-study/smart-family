@@ -20,8 +20,6 @@ public class UserIntegralRecordEntity {
 
     private Long refId;
 
-    private Integer refType;
-
     private LocalDateTime updateTime;
 
     private LocalDateTime createTime;

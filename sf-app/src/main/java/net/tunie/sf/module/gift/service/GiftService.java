@@ -20,39 +20,43 @@ public class GiftService {
     @Resource
     private GiftDao giftDao;
 
-    public ResponseDTO<String> addGiftUser(GiftAddForm giftAddForm) {
+    public ResponseDTO<String> addGift(GiftAddForm giftAddForm) {
 
-        GiftEntity giftUserEntity = SmartBeanUtil.copy(giftAddForm, GiftEntity.class);
-        giftDao.insert(giftUserEntity);
+        GiftEntity giftEntity = SmartBeanUtil.copy(giftAddForm, GiftEntity.class);
+        giftDao.insert(giftEntity);
 
         return ResponseDTO.ok();
     }
 
-    public ResponseDTO<List<GiftVo>> queryGiftUser(Long userId) {
-        QueryWrapper<GiftEntity> giftUserEntityQueryWrapper = Wrappers.query();
-        giftUserEntityQueryWrapper.eq("user_id", userId);
-        List<GiftEntity> giftUserEntities = giftDao.selectList(giftUserEntityQueryWrapper);
-        List<GiftVo> giftUserVos = SmartBeanUtil.copyList(giftUserEntities, GiftVo.class);
-        return ResponseDTO.ok(giftUserVos);
+    public GiftEntity selectGiftById(Long giftId) {
+        return giftDao.selectById(giftId);
     }
 
-    public ResponseDTO<GiftVo> queryGiftUserDetail(Long giftId) {
-        GiftEntity giftUserEntity = giftDao.selectById(giftId);
-        if (null == giftUserEntity) {
-            return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
-        }
-        GiftVo giftUserVo = SmartBeanUtil.copy(giftUserEntity, GiftVo.class);
-        return ResponseDTO.ok(giftUserVo);
+    public ResponseDTO<List<GiftVo>> queryGift(Long userId) {
+        QueryWrapper<GiftEntity> giftEntityQueryWrapper = Wrappers.query();
+        giftEntityQueryWrapper.eq("user_id", userId);
+        List<GiftEntity> giftEntities = giftDao.selectList(giftEntityQueryWrapper);
+        List<GiftVo> giftVos = SmartBeanUtil.copyList(giftEntities, GiftVo.class);
+        return ResponseDTO.ok(giftVos);
     }
 
-    public ResponseDTO<String> updateGiftUser(GiftUpdateForm giftUpdateForm) {
-        GiftEntity giftUserEntity = giftDao.selectById(giftUpdateForm.getGiftId());
-        if (giftUserEntity == null) {
+    public ResponseDTO<GiftVo> queryGiftDetail(Long giftId) {
+        GiftEntity giftEntity = this.selectGiftById(giftId);
+        if (null == giftEntity) {
+            return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
+        }
+        GiftVo giftVo = SmartBeanUtil.copy(giftEntity, GiftVo.class);
+        return ResponseDTO.ok(giftVo);
+    }
+
+    public ResponseDTO<String> updateGift(GiftUpdateForm giftUpdateForm) {
+        GiftEntity giftEntity = giftDao.selectById(giftUpdateForm.getGiftId());
+        if (giftEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
 
-        GiftEntity updateGiftUserEntity = SmartBeanUtil.copy(giftUpdateForm, GiftEntity.class);
-        giftDao.updateById(updateGiftUserEntity);
+        GiftEntity updateGiftEntity = SmartBeanUtil.copy(giftUpdateForm, GiftEntity.class);
+        giftDao.updateById(updateGiftEntity);
 
         return ResponseDTO.ok();
     }

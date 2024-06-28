@@ -2,13 +2,16 @@ package net.tunie.sf.module.task.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.common.utils.SmartUserUtil;
 import net.tunie.sf.constant.TaskStatusConst;
-import net.tunie.sf.constant.UserIntegralRecordTypeConst;
+import net.tunie.sf.constant.RecordTypeConst;
 import net.tunie.sf.module.login.domain.RequestUser;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
 import net.tunie.sf.module.task.domain.dao.TaskIntegralDao;
@@ -18,6 +21,7 @@ import net.tunie.sf.module.task.domain.entity.TaskIntegralEntity;
 import net.tunie.sf.module.task.domain.entity.TaskRecordEntity;
 import net.tunie.sf.module.task.domain.form.TaskRecordCompleteForm;
 import net.tunie.sf.module.task.domain.form.TaskRecordQueryForm;
+import net.tunie.sf.module.task.domain.vo.TaskJsonVo;
 import net.tunie.sf.module.task.domain.vo.TaskRecordVo;
 import net.tunie.sf.module.user.domain.form.UserIntegralUpdateForm;
 import net.tunie.sf.module.user.service.UserIntegralService;
@@ -61,9 +65,9 @@ public class TaskRecordService {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
 
+        TaskEntity taskEntity = taskDao.selectById(taskRecordEntity.getTaskId());
         if (TaskStatusConst.COMPLETE == status && TaskStatusConst.INIT == taskRecordEntity.getStatus()) {
             // 检测一下任务是否需要审核，若需要，则不能直接设置为完成，需要设置为待审核
-            TaskEntity taskEntity = taskDao.selectById(taskRecordEntity.getTaskId());
             if (taskEntity.getVerifyFlag()) {
                 status = TaskStatusConst.WAIT_VERIFY;
             }
@@ -75,14 +79,27 @@ public class TaskRecordService {
         taskRecordDao.updateById(newTaskRecordEntity);
 
         // 更新积分
-        if(TaskStatusConst.COMPLETE == status) {
+        if (TaskStatusConst.COMPLETE == status) {
             TaskIntegralEntity taskIntegralEntity = taskIntegralDao.selectById(taskRecordEntity.getTaskId());
 
             UserIntegralUpdateForm userIntegralUpdateForm = new UserIntegralUpdateForm();
             userIntegralUpdateForm.setIntegralChange(taskIntegralEntity.getIntegral());
             userIntegralUpdateForm.setUserId(taskRecordEntity.getUserId());
-            userIntegralUpdateForm.setRefType(UserIntegralRecordTypeConst.TASK);
+            userIntegralUpdateForm.setRefType(RecordTypeConst.TASK);
             userIntegralUpdateForm.setRefId(id);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+            TaskJsonVo taskJsonVo = SmartBeanUtil.copy(taskEntity, TaskJsonVo.class);
+            taskJsonVo.setTaskDate(taskRecordEntity.getTaskDate());
+            taskJsonVo.setId(taskRecordEntity.getId());
+            try {
+                String content = objectMapper.writeValueAsString(taskJsonVo);
+                userIntegralUpdateForm.setContent(content);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+
             userIntegralService.update(userIntegralUpdateForm);
         }
 

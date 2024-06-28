@@ -3,6 +3,8 @@ package net.tunie.sf.module.user.service;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
+import net.tunie.sf.module.system.record.domain.form.RecordAddForm;
+import net.tunie.sf.module.system.record.service.RecordService;
 import net.tunie.sf.module.user.domain.dao.UserIntegralDao;
 import net.tunie.sf.module.user.domain.entity.UserIntegralEntity;
 import net.tunie.sf.module.user.domain.entity.UserIntegralRecordEntity;
@@ -18,9 +20,18 @@ public class UserIntegralService {
     @Resource
     private UserIntegralRecordService userIntegralRecordService;
 
+    @Resource
+    private RecordService recordService;
+
     public void update(UserIntegralUpdateForm userIntegralUpdateForm) {
 
-        UserIntegralRecordEntity userIntegralRecordEntity = SmartBeanUtil.copy(userIntegralUpdateForm, UserIntegralRecordEntity.class);
+        RecordAddForm recordAddForm = SmartBeanUtil.copy(userIntegralUpdateForm, RecordAddForm.class);
+        Long recordId = recordService.add(recordAddForm);
+
+        UserIntegralRecordEntity userIntegralRecordEntity = new UserIntegralRecordEntity();
+        userIntegralRecordEntity.setUserId(userIntegralUpdateForm.getUserId());
+        userIntegralRecordEntity.setIntegralChange(userIntegralUpdateForm.getIntegralChange());
+        userIntegralRecordEntity.setRefId(recordId);
         userIntegralRecordService.add(userIntegralRecordEntity);
 
         UserIntegralEntity userIntegralEntity = userIntegralDao.selectById(userIntegralUpdateForm.getUserId());

@@ -20,4 +20,6 @@ public class SmartUserUtil {
     public static boolean getUserChildFlag(int type) {
         return UserTypeConst.CHILD == type;
     }
+
+
 }

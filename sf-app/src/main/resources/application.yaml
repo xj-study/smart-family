@@ -9,3 +9,6 @@ spring:
     restart:
       enabled: true
       additional-paths: src/main/java
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

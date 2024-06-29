@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.tunie.sf.module.order.domain.dao.OrderGiftDao">
+
+    <select id="selectGiftList" resultType="net.tunie.sf.module.order.domain.entity.OrderGiftEntity">
+        select * from t_order_gift
+        <where>
+            user_id = #{orderGift.userId}
+            <if test="orderGift.status != null">
+                and status = #{orderGift.status}
+            </if>
+        </where>
+    </select>
+</mapper>

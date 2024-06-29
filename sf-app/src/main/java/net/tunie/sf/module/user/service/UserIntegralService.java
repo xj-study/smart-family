@@ -47,16 +47,17 @@ public class UserIntegralService {
         }
     }
 
-    public UserIntegralEntity queryUserIntegral(Long userId) {
-        return userIntegralDao.selectById(userId);
-    }
+    public Integer queryUserIntegral(Long userId) {
 
-    public ResponseDTO<Integer> queryIntegral(Long requestUserId) {
-        UserIntegralEntity userIntegralEntity = this.queryUserIntegral(requestUserId);
+        UserIntegralEntity userIntegralEntity = userIntegralDao.selectById(userId);
         int integral = 0;
         if (userIntegralEntity != null) {
             integral = userIntegralEntity.getIntegral();
         }
-        return ResponseDTO.ok(integral);
+        return integral;
+    }
+
+    public ResponseDTO<Integer> queryIntegral(Long requestUserId) {
+        return ResponseDTO.ok(this.queryUserIntegral(requestUserId));
     }
 }

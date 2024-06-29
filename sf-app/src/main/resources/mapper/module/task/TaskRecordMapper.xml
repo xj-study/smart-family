@@ -11,7 +11,7 @@
             T.user_id = #{taskUserId}
 
             <if test="status != null">
-                AND R.status = #{status}
+                AND coalesce(R.status, 0) = #{status}
             </if>
         </where>
         order by R.status

@@ -1,7 +1,5 @@
 package net.tunie.sf.module.order.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
@@ -19,12 +17,10 @@ import net.tunie.sf.module.order.domain.form.OrderGiftAddForm;
 import net.tunie.sf.module.order.domain.form.OrderGiftQueryForm;
 import net.tunie.sf.module.order.domain.vo.OrderGiftJsonVo;
 import net.tunie.sf.module.order.domain.vo.OrderGiftVo;
-import net.tunie.sf.module.user.domain.entity.UserIntegralEntity;
 import net.tunie.sf.module.user.domain.form.UserIntegralUpdateForm;
 import net.tunie.sf.module.user.service.UserIntegralService;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
 import java.util.List;
 
 @Service
@@ -45,6 +41,15 @@ public class OrderGiftService {
         List<OrderGiftVo> orderGiftVos = SmartBeanUtil.copyList(orderGiftEntities, OrderGiftVo.class);
 
         return ResponseDTO.ok(orderGiftVos);
+    }
+
+    public ResponseDTO<String> updateOrderStatus(Long orderId, Integer status) {
+        OrderGiftEntity orderGiftEntity = new OrderGiftEntity();
+        orderGiftEntity.setOrderId(orderId);
+        orderGiftEntity.setStatus(status);
+
+        orderGiftDao.updateById(orderGiftEntity);
+        return ResponseDTO.ok();
     }
 
     public ResponseDTO<Long> createOrder(OrderGiftAddForm orderGiftAddForm) {

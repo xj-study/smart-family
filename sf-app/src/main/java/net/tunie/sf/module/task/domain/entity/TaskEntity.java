@@ -16,6 +16,8 @@ public class TaskEntity {
 
     private Long userId;
 
+    private Integer taskType;
+
     private String title;
 
     private String content;

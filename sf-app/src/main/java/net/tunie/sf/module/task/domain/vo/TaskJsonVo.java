@@ -14,5 +14,7 @@ public class TaskJsonVo {
 
     private String content;
 
+    private Integer taskType;
+
     private LocalDate taskDate;
 }

@@ -18,5 +18,7 @@ public class TaskVo {
 
     private Boolean verifyFlag;
 
+    private Integer taskType;
+
     private Integer integral;
 }

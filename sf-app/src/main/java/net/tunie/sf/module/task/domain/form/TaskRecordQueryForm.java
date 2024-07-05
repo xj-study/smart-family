@@ -9,5 +9,8 @@ public class TaskRecordQueryForm {
 
     private Long id;
 
+    private Integer taskType;
+
     private Integer status;
+
 }

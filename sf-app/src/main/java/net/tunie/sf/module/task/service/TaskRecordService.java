@@ -12,6 +12,7 @@ import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.common.utils.SmartUserUtil;
 import net.tunie.sf.constant.TaskStatusConst;
 import net.tunie.sf.constant.RecordTypeConst;
+import net.tunie.sf.constant.TaskTypeConst;
 import net.tunie.sf.module.login.domain.RequestUser;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
 import net.tunie.sf.module.task.domain.dao.TaskIntegralDao;
@@ -59,24 +60,28 @@ public class TaskRecordService {
         return ResponseDTO.ok(taskRecordVos);
     }
 
-    public ResponseDTO<Integer> updateTaskStatus(Long id, Integer status) {
-        TaskRecordEntity taskRecordEntity = taskRecordDao.selectById(id);
+    // 检查一下任务更新的状态
+    private Integer getTaskUpdateStatus(TaskRecordEntity taskRecordEntity, TaskEntity taskEntity, Integer status) {
+        if (taskEntity.getTaskType() == TaskTypeConst.COMMON) {
+            if (status == TaskStatusConst.COMPLETE && taskRecordEntity.getStatus() == TaskStatusConst.INIT && taskEntity.getVerifyFlag()) {
+                return TaskStatusConst.WAIT_VERIFY;
+            }
+        }
+        return status;
+    }
+
+
+
+    public ResponseDTO<Integer> updateTaskStatus(TaskRecordEntity taskRecordEntity, Integer status) {
         if (taskRecordEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
 
         TaskEntity taskEntity = taskDao.selectById(taskRecordEntity.getTaskId());
-        if (TaskStatusConst.COMPLETE == status && TaskStatusConst.INIT == taskRecordEntity.getStatus()) {
-            // 检测一下任务是否需要审核，若需要，则不能直接设置为完成，需要设置为待审核
-            if (taskEntity.getVerifyFlag()) {
-                status = TaskStatusConst.WAIT_VERIFY;
-            }
-        }
+        status = getTaskUpdateStatus(taskRecordEntity, taskEntity, status);
 
-        TaskRecordEntity newTaskRecordEntity = new TaskRecordEntity();
-        newTaskRecordEntity.setId(id);
-        newTaskRecordEntity.setStatus(status);
-        taskRecordDao.updateById(newTaskRecordEntity);
+        taskRecordEntity.setStatus(status);
+        taskRecordDao.updateById(taskRecordEntity);
 
         // 更新积分
         if (TaskStatusConst.COMPLETE == status) {
@@ -86,7 +91,7 @@ public class TaskRecordService {
             userIntegralUpdateForm.setIntegralChange(taskIntegralEntity.getIntegral());
             userIntegralUpdateForm.setUserId(taskRecordEntity.getUserId());
             userIntegralUpdateForm.setRefType(RecordTypeConst.TASK);
-            userIntegralUpdateForm.setRefId(id);
+            userIntegralUpdateForm.setRefId(taskRecordEntity.getId());
 
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
@@ -103,7 +108,12 @@ public class TaskRecordService {
             userIntegralService.update(userIntegralUpdateForm);
         }
 
-        return ResponseDTO.ok(newTaskRecordEntity.getStatus());
+        return ResponseDTO.ok(status);
+    }
+
+    public ResponseDTO<Integer> updateTaskStatus(Long id, Integer status) {
+        TaskRecordEntity taskRecordEntity = taskRecordDao.selectById(id);
+        return this.updateTaskStatus(taskRecordEntity, status);
     }
 
     public ResponseDTO<Integer> updateTaskStatus(TaskRecordCompleteForm taskRecordCompleteForm) {
@@ -117,13 +127,13 @@ public class TaskRecordService {
         QueryWrapper<TaskRecordEntity> query = Wrappers.query(queryTaskRecordEntity);
         TaskRecordEntity selectOne = taskRecordDao.selectOne(query);
         if (selectOne != null) {
-            return this.updateTaskStatus(selectOne.getId(), taskRecordCompleteForm.getStatus());
+            return this.updateTaskStatus(selectOne, taskRecordCompleteForm.getStatus());
         } else {
 
             TaskRecordEntity taskRecordEntity = SmartBeanUtil.copy(taskRecordCompleteForm, TaskRecordEntity.class);
             taskRecordEntity.setStatus(TaskStatusConst.INIT);
             taskRecordDao.insert(taskRecordEntity);
-            return this.updateTaskStatus(taskRecordEntity.getId(), taskRecordCompleteForm.getStatus());
+            return this.updateTaskStatus(taskRecordEntity, taskRecordCompleteForm.getStatus());
         }
 
     }

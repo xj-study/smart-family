@@ -15,5 +15,7 @@ public class TaskAddForm {
 
     private Boolean disableFlag;
 
+    private Integer taskType;
+
     private Integer integral;
 }

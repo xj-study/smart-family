@@ -20,7 +20,7 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping("/task/add")
-    public ResponseDTO<String> add(@RequestBody TaskAddForm taskAddForm) {
+    public ResponseDTO<Long> add(@RequestBody TaskAddForm taskAddForm) {
         Long requestUserId = SmartRequestUtil.getRequestUserId();
         taskAddForm.setUserId(requestUserId);
         return taskService.addTask(taskAddForm);

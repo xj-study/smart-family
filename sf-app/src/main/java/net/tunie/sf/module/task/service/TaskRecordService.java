@@ -14,6 +14,7 @@ import net.tunie.sf.constant.TaskStatusConst;
 import net.tunie.sf.constant.RecordTypeConst;
 import net.tunie.sf.constant.TaskTypeConst;
 import net.tunie.sf.module.login.domain.RequestUser;
+import net.tunie.sf.module.task.constant.TaskDateTypeQueryConst;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
 import net.tunie.sf.module.task.domain.dao.TaskIntegralDao;
 import net.tunie.sf.module.task.domain.dao.TaskRecordDao;
@@ -45,7 +46,8 @@ public class TaskRecordService {
     @Resource
     private UserIntegralService userIntegralService;
 
-    public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(RequestUser requestUser, LocalDate localDate, TaskRecordQueryForm taskRecordQueryForm) {
+    public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(RequestUser requestUser, TaskRecordQueryForm taskRecordQueryForm) {
+
         Long taskUserId = requestUser.getUserId();
         if (SmartUserUtil.getUserChildFlag(requestUser.getType())) {
             taskUserId = requestUser.getParentId();
@@ -56,7 +58,14 @@ public class TaskRecordService {
             recordUserId = taskRecordQueryForm.getId();
         }
 
-        List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(taskUserId, recordUserId, localDate, taskRecordQueryForm.getStatus());
+        LocalDate taskDate = LocalDate.now();
+        // 处理 task date
+        if(taskRecordQueryForm.getDate() == TaskDateTypeQueryConst.YESTODAY) {
+            //taskDate
+            taskDate = taskDate.minusDays(1);
+        }
+
+        List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(taskUserId, recordUserId, taskDate, taskRecordQueryForm.getStatus());
         return ResponseDTO.ok(taskRecordVos);
     }
 

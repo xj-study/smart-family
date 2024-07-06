@@ -36,7 +36,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        RequestUser loginUser = loginService.getLoginUser((String) loginIdByToken);
+        RequestUser loginUser = loginService.getLoginUser(Long.parseLong((String) loginIdByToken));
         SmartRequestUtil.setRequestUser(loginUser);
 
         return true;

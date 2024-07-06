@@ -46,6 +46,16 @@ public class TaskRecordService {
     @Resource
     private UserIntegralService userIntegralService;
 
+    private LocalDate getTaskDate(Integer dateType) {
+        LocalDate taskDate = LocalDate.now();
+        // 处理 task date
+        if(dateType == TaskDateTypeQueryConst.YESTODAY) {
+            //taskDate
+            taskDate = taskDate.minusDays(1);
+        }
+        return taskDate;
+    }
+
     public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(RequestUser requestUser, TaskRecordQueryForm taskRecordQueryForm) {
 
         Long taskUserId = requestUser.getUserId();
@@ -58,12 +68,7 @@ public class TaskRecordService {
             recordUserId = taskRecordQueryForm.getId();
         }
 
-        LocalDate taskDate = LocalDate.now();
-        // 处理 task date
-        if(taskRecordQueryForm.getDate() == TaskDateTypeQueryConst.YESTODAY) {
-            //taskDate
-            taskDate = taskDate.minusDays(1);
-        }
+        LocalDate taskDate = this.getTaskDate(taskRecordQueryForm.getDate());
 
         List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(taskUserId, recordUserId, taskDate, taskRecordQueryForm.getStatus());
         return ResponseDTO.ok(taskRecordVos);
@@ -126,13 +131,12 @@ public class TaskRecordService {
     }
 
     public ResponseDTO<Integer> updateTaskStatus(TaskRecordCompleteForm taskRecordCompleteForm) {
-        if (taskRecordCompleteForm.getTaskDate() == null) {
-            taskRecordCompleteForm.setTaskDate(LocalDate.now());
-        }
+
+        LocalDate taskDate = this.getTaskDate(taskRecordCompleteForm.getDate());
         TaskRecordEntity queryTaskRecordEntity = new TaskRecordEntity();
         queryTaskRecordEntity.setTaskId(taskRecordCompleteForm.getTaskId());
         queryTaskRecordEntity.setUserId(taskRecordCompleteForm.getUserId());
-        queryTaskRecordEntity.setTaskDate(taskRecordCompleteForm.getTaskDate());
+        queryTaskRecordEntity.setTaskDate(taskDate);
         QueryWrapper<TaskRecordEntity> query = Wrappers.query(queryTaskRecordEntity);
         TaskRecordEntity selectOne = taskRecordDao.selectOne(query);
         if (selectOne != null) {
@@ -140,6 +144,7 @@ public class TaskRecordService {
         } else {
 
             TaskRecordEntity taskRecordEntity = SmartBeanUtil.copy(taskRecordCompleteForm, TaskRecordEntity.class);
+            taskRecordEntity.setTaskDate(taskDate);
             taskRecordEntity.setStatus(TaskStatusConst.INIT);
             taskRecordDao.insert(taskRecordEntity);
             return this.updateTaskStatus(taskRecordEntity, taskRecordCompleteForm.getStatus());

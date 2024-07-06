@@ -11,7 +11,8 @@ public class TaskRecordCompleteForm {
 
     private Long userId;
 
-    private LocalDate taskDate;
+    private Integer date;
 
     private Integer status;
+
 }

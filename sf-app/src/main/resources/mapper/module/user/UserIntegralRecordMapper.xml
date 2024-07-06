@@ -8,6 +8,8 @@
         FROM t_user_integral_record IR
                  left join t_record R on IR.ref_id = R.id
         where IR.user_id = #{userId}
+        order by IR.update_time desc
+        limit 100
     </select>
 
 </mapper>

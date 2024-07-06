@@ -25,8 +25,7 @@ public class TaskRecordController {
     @PostMapping("/task/record/query")
     public ResponseDTO<List<TaskRecordVo>> query(@RequestBody TaskRecordQueryForm taskRecordQueryForm) {
         RequestUser requestUser = SmartRequestUtil.getRequestUser();
-        LocalDate now = LocalDate.now();
-        return taskRecordService.queryDailyTaskRecord(requestUser, now, taskRecordQueryForm);
+        return taskRecordService.queryDailyTaskRecord(requestUser, taskRecordQueryForm);
     }
 
     @GetMapping("/task/record/complete/{id}")

@@ -26,7 +26,7 @@ public class TaskService {
     @Resource
     private TaskIntegralDao taskIntegralDao;
 
-    public ResponseDTO<String> addTask(TaskAddForm taskAddForm) {
+    public ResponseDTO<Long> addTask(TaskAddForm taskAddForm) {
         TaskEntity taskEntity = SmartBeanUtil.copy(taskAddForm, TaskEntity.class);
         taskDao.insert(taskEntity);
 
@@ -35,7 +35,7 @@ public class TaskService {
         taskIntegralEntity.setIntegral(taskAddForm.getIntegral());
         taskIntegralDao.insert(taskIntegralEntity);
 
-        return ResponseDTO.ok();
+        return ResponseDTO.ok(taskEntity.getTaskId());
     }
 
     public ResponseDTO<List<TaskVo>> queryTask(Long requestUserId) {

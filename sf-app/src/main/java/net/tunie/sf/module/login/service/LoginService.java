@@ -47,7 +47,13 @@ public class LoginService {
         return ResponseDTO.ok();
     }
 
-    public RequestUser getLoginUser(String userId) {
+
+    public ResponseDTO<RequestUser> queryLoginUser(Long userId){
+        RequestUser loginUser = this.getLoginUser(userId);
+        return ResponseDTO.ok(loginUser);
+    }
+
+    public RequestUser getLoginUser(Long userId) {
         UserEntity userEntity = userService.getUserById(userId);
         return getLoginUser(userEntity);
     }

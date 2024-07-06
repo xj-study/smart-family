@@ -13,4 +13,6 @@ public class TaskRecordQueryForm {
 
     private Integer status;
 
+    private Integer date;
+
 }

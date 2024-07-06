@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
+import net.tunie.sf.module.login.domain.RequestUser;
+import net.tunie.sf.module.login.service.LoginService;
 import net.tunie.sf.module.user.domain.dao.UserDao;
 import net.tunie.sf.module.user.domain.entity.UserEntity;
 import net.tunie.sf.module.user.domain.form.UserAddForm;
@@ -19,16 +21,12 @@ public class UserService {
     @Resource
     private UserDao userDao;
 
+
     public ResponseDTO<String> addUser(UserAddForm userAddForm) {
         userDao.insert(SmartBeanUtil.copy(userAddForm, UserEntity.class));
         return ResponseDTO.ok();
     }
 
-    public ResponseDTO<UserVo> queryDetail(Long id) {
-        UserEntity userEntity = userDao.selectById(id);
-        UserVo userVo = SmartBeanUtil.copy(userEntity, UserVo.class);
-        return ResponseDTO.ok(userVo);
-    }
 
     public ResponseDTO<List<UserVo>> queryUser() {
         List<UserEntity> userEntities = userDao.selectList(null);
@@ -46,7 +44,7 @@ public class UserService {
         return userDao.selectByUserNameOrMobile(userName, mobile);
     }
 
-    public UserEntity getUserById(String userId) {
+    public UserEntity getUserById(Long userId) {
         return userDao.selectById(userId);
     }
 

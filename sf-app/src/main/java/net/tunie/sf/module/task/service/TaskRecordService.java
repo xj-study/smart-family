@@ -14,6 +14,7 @@ import net.tunie.sf.constant.TaskStatusConst;
 import net.tunie.sf.constant.RecordTypeConst;
 import net.tunie.sf.constant.TaskTypeConst;
 import net.tunie.sf.module.login.domain.RequestUser;
+import net.tunie.sf.module.task.constant.TaskDateTypeQueryConst;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
 import net.tunie.sf.module.task.domain.dao.TaskIntegralDao;
 import net.tunie.sf.module.task.domain.dao.TaskRecordDao;
@@ -45,7 +46,18 @@ public class TaskRecordService {
     @Resource
     private UserIntegralService userIntegralService;
 
-    public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(RequestUser requestUser, LocalDate localDate, TaskRecordQueryForm taskRecordQueryForm) {
+    private LocalDate getTaskDate(Integer dateType) {
+        LocalDate taskDate = LocalDate.now();
+        // 处理 task date
+        if(dateType == TaskDateTypeQueryConst.YESTODAY) {
+            //taskDate
+            taskDate = taskDate.minusDays(1);
+        }
+        return taskDate;
+    }
+
+    public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(RequestUser requestUser, TaskRecordQueryForm taskRecordQueryForm) {
+
         Long taskUserId = requestUser.getUserId();
         if (SmartUserUtil.getUserChildFlag(requestUser.getType())) {
             taskUserId = requestUser.getParentId();
@@ -56,7 +68,9 @@ public class TaskRecordService {
             recordUserId = taskRecordQueryForm.getId();
         }
 
-        List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(taskUserId, recordUserId, localDate, taskRecordQueryForm.getStatus());
+        LocalDate taskDate = this.getTaskDate(taskRecordQueryForm.getDate());
+
+        List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(taskUserId, recordUserId, taskDate, taskRecordQueryForm.getStatus());
         return ResponseDTO.ok(taskRecordVos);
     }
 
@@ -117,13 +131,12 @@ public class TaskRecordService {
     }
 
     public ResponseDTO<Integer> updateTaskStatus(TaskRecordCompleteForm taskRecordCompleteForm) {
-        if (taskRecordCompleteForm.getTaskDate() == null) {
-            taskRecordCompleteForm.setTaskDate(LocalDate.now());
-        }
+
+        LocalDate taskDate = this.getTaskDate(taskRecordCompleteForm.getDate());
         TaskRecordEntity queryTaskRecordEntity = new TaskRecordEntity();
         queryTaskRecordEntity.setTaskId(taskRecordCompleteForm.getTaskId());
         queryTaskRecordEntity.setUserId(taskRecordCompleteForm.getUserId());
-        queryTaskRecordEntity.setTaskDate(taskRecordCompleteForm.getTaskDate());
+        queryTaskRecordEntity.setTaskDate(taskDate);
         QueryWrapper<TaskRecordEntity> query = Wrappers.query(queryTaskRecordEntity);
         TaskRecordEntity selectOne = taskRecordDao.selectOne(query);
         if (selectOne != null) {
@@ -131,6 +144,7 @@ public class TaskRecordService {
         } else {
 
             TaskRecordEntity taskRecordEntity = SmartBeanUtil.copy(taskRecordCompleteForm, TaskRecordEntity.class);
+            taskRecordEntity.setTaskDate(taskDate);
             taskRecordEntity.setStatus(TaskStatusConst.INIT);
             taskRecordDao.insert(taskRecordEntity);
             return this.updateTaskStatus(taskRecordEntity, taskRecordCompleteForm.getStatus());

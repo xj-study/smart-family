@@ -105,6 +105,7 @@ public class TaskRecordService extends ServiceImpl<TaskRecordDao, TaskRecordEnti
             TaskJsonVo taskJsonVo = SmartBeanUtil.copy(taskEntity, TaskJsonVo.class);
             taskJsonVo.setTaskDate(taskRecordEntity.getTaskDate());
             taskJsonVo.setId(taskRecordEntity.getId());
+            taskJsonVo.setTaskId(taskEntity.getId());
             String content = JSON.toJSONString(taskJsonVo);
 
             userIntegralUpdateForm.setContent(content);

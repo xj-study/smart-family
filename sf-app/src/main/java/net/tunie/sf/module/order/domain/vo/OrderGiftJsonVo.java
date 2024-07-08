@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class OrderGiftJsonVo {
-    private Long orderId;
+    private Long id;
 
     private Integer num;
 

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class OrderGiftVo {
-    private Long orderId;
+    private Long id;
 
     private Long userId;
 

@@ -45,6 +45,14 @@ public class StoryService extends ServiceImpl<StoryDao, StoryEntity> {
         return ResponseDTO.ok(storyVos);
     }
 
+    public ResponseDTO<List<StoryVo>> queryDisableStoryList(Long userId) {
+        LambdaQueryWrapper<StoryEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(StoryEntity::getUserId, userId);
+        List<StoryEntity> storyEntities = this.baseMapper.selectIgnoreLogicDelete(lambdaQueryWrapper);
+        List<StoryVo> storyVos = SmartBeanUtil.copyList(storyEntities, StoryVo.class);
+        return ResponseDTO.ok(storyVos);
+    }
+
     public ResponseDTO<StoryVo> queryStory(Long storyId) {
         StoryEntity storyEntity = this.getById(storyId);
         if (storyEntity == null) {

@@ -14,5 +14,4 @@ import java.util.List;
 @Mapper
 public interface StoryLevelDao extends BaseMapper<StoryLevelEntity> {
 
-    List<StoryLevelEntity> selectStoryLevelList(@Param("storyId") Long storyId, @Param("disableFlag") Boolean disableFlag);
 }

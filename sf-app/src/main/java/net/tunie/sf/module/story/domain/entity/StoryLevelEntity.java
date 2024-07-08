@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Data
 public class StoryLevelEntity extends BaseEntity {
 
-    private Integer order;
+    private Integer levelOrder;
 
     private Long storyId;
 

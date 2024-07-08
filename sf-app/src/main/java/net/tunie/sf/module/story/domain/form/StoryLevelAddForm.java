@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class StoryLevelAddForm {
 
-    private Integer order;
+    private Integer levelOrder;
 
     private Long storyId;
 

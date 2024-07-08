@@ -36,6 +36,11 @@ public class StoryController {
         return storyService.queryStoryList(storyQueryForm);
     }
 
+    @GetMapping("/story/disabled/query")
+    public ResponseDTO<List<StoryVo>> queryDisable() {
+        return storyService.queryDisableStoryList(SmartRequestUtil.getRequestUserId());
+    }
+
     @GetMapping("/story/{storyId}/query")
     public ResponseDTO<StoryVo> query(@PathVariable Long storyId) {
         return storyService.queryStory(storyId);

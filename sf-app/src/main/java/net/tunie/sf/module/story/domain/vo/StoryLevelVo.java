@@ -11,7 +11,7 @@ public class StoryLevelVo {
 
     private Long id;
 
-    private Integer order;
+    private Integer levelOrder;
 
     private String title;
 

@@ -18,7 +18,7 @@ public class GiftController {
     private GiftService giftService;
 
     @PostMapping("/gift/add")
-    public ResponseDTO<String> add(@RequestBody GiftAddForm giftAddForm) {
+    public ResponseDTO<Long> add(@RequestBody GiftAddForm giftAddForm) {
         Long requestUserId = SmartRequestUtil.getRequestUserId();
         giftAddForm.setUserId(requestUserId);
         return giftService.addGift(giftAddForm);

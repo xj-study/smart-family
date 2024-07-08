@@ -1,7 +1,9 @@
 package net.tunie.sf.module.gift.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
@@ -16,32 +18,26 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class GiftService {
-    @Resource
-    private GiftDao giftDao;
+public class GiftService extends ServiceImpl<GiftDao, GiftEntity> {
 
-    public ResponseDTO<String> addGift(GiftAddForm giftAddForm) {
+    public ResponseDTO<Long> addGift(GiftAddForm giftAddForm) {
 
         GiftEntity giftEntity = SmartBeanUtil.copy(giftAddForm, GiftEntity.class);
-        giftDao.insert(giftEntity);
+        this.save(giftEntity);
 
-        return ResponseDTO.ok();
-    }
-
-    public GiftEntity selectGiftById(Long giftId) {
-        return giftDao.selectById(giftId);
+        return ResponseDTO.ok(giftEntity.getId());
     }
 
     public ResponseDTO<List<GiftVo>> queryGift(Long userId) {
-        QueryWrapper<GiftEntity> giftEntityQueryWrapper = Wrappers.query();
-        giftEntityQueryWrapper.eq("user_id", userId);
-        List<GiftEntity> giftEntities = giftDao.selectList(giftEntityQueryWrapper);
+        LambdaQueryWrapper<GiftEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(GiftEntity::getUserId, userId);
+        List<GiftEntity> giftEntities = this.list(lambdaQueryWrapper);
         List<GiftVo> giftVos = SmartBeanUtil.copyList(giftEntities, GiftVo.class);
         return ResponseDTO.ok(giftVos);
     }
 
     public ResponseDTO<GiftVo> queryGiftDetail(Long giftId) {
-        GiftEntity giftEntity = this.selectGiftById(giftId);
+        GiftEntity giftEntity = this.getById(giftId);
         if (null == giftEntity) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
@@ -50,13 +46,13 @@ public class GiftService {
     }
 
     public ResponseDTO<String> updateGift(GiftUpdateForm giftUpdateForm) {
-        GiftEntity giftEntity = giftDao.selectById(giftUpdateForm.getGiftId());
+        GiftEntity giftEntity = this.getById(giftUpdateForm.getId());
         if (giftEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
 
         GiftEntity updateGiftEntity = SmartBeanUtil.copy(giftUpdateForm, GiftEntity.class);
-        giftDao.updateById(updateGiftEntity);
+        this.updateById(updateGiftEntity);
 
         return ResponseDTO.ok();
     }

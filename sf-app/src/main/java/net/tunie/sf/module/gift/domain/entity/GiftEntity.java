@@ -4,15 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.tunie.sf.common.domain.BaseEntity;
 
 import java.time.LocalDateTime;
 
 @Data
 @TableName("t_gift")
-public class GiftEntity {
-
-    @TableId(type = IdType.AUTO)
-    private Long giftId;
+public class GiftEntity extends BaseEntity {
 
     private Long userId;
 
@@ -22,7 +20,4 @@ public class GiftEntity {
 
     private Double price;
 
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
 }

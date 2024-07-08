@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class GiftVo {
 
-    private Long giftId;
+    private Long id;
 
     private String name;
 

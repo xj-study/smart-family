@@ -57,7 +57,7 @@ public class OrderGiftService extends ServiceImpl<OrderGiftDao, OrderGiftEntity>
             return ResponseDTO.userErrorParams();
         }
 
-        GiftEntity giftEntity = giftService.selectGiftById(orderGiftAddForm.getGiftId());
+        GiftEntity giftEntity = giftService.getById(orderGiftAddForm.getGiftId());
         if (giftEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST, "礼物数据不存在");
         }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.tunie.sf.module.story.domain.dao.StoryDao">
+    <select id="queryStoryList" resultType="net.tunie.sf.module.story.domain.entity.StoryEntity">
+        select *
+        from t_story
+        <where>
+            and user_id = #{storyQueryForm.userId}
+            <if test="storyQueryForm.disableFlag != null">
+                and disable_flag = #{storyQueryForm.disableFlag}
+            </if>
+        </where>
+
+        order by update_time DESC
+    </select>
+</mapper>

@@ -1,6 +1,8 @@
 package net.tunie.sf.module.login.service;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
@@ -23,7 +25,7 @@ public class LoginService {
             return ResponseDTO.userErrorParams("用户密码不存在");
         }
 
-        UserEntity userEntity = userService.getUserByNameOrMobile(loginForm.getUserName(), loginForm.getUserName());
+        UserEntity userEntity = this.userService.getUserByNameOrMobile(loginForm.getUserName(), loginForm.getUserName());
         if (null == userEntity) {
             return ResponseDTO.userErrorParams("用户不存在");
         }
@@ -48,13 +50,13 @@ public class LoginService {
     }
 
 
-    public ResponseDTO<RequestUser> queryLoginUser(Long userId){
+    public ResponseDTO<RequestUser> queryLoginUser(Long userId) {
         RequestUser loginUser = this.getLoginUser(userId);
         return ResponseDTO.ok(loginUser);
     }
 
     public RequestUser getLoginUser(Long userId) {
-        UserEntity userEntity = userService.getUserById(userId);
+        UserEntity userEntity = userService.getById(userId);
         return getLoginUser(userEntity);
     }
 

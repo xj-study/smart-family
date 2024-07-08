@@ -1,5 +1,7 @@
 package net.tunie.sf.module.order.service;
 
+import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
@@ -24,10 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class OrderGiftService {
-
-    @Resource
-    private OrderGiftDao orderGiftDao;
+public class OrderGiftService extends ServiceImpl<OrderGiftDao, OrderGiftEntity> {
 
     @Resource
     private GiftService giftService;
@@ -37,7 +36,7 @@ public class OrderGiftService {
 
     public ResponseDTO<List<OrderGiftVo>> queryOrder(OrderGiftQueryForm orderGiftQueryForm) {
 
-        List<OrderGiftEntity> orderGiftEntities = orderGiftDao.selectGiftList(orderGiftQueryForm);
+        List<OrderGiftEntity> orderGiftEntities = this.baseMapper.selectGiftList(orderGiftQueryForm);
         List<OrderGiftVo> orderGiftVos = SmartBeanUtil.copyList(orderGiftEntities, OrderGiftVo.class);
 
         return ResponseDTO.ok(orderGiftVos);
@@ -45,10 +44,10 @@ public class OrderGiftService {
 
     public ResponseDTO<String> updateOrderStatus(Long orderId, Integer status) {
         OrderGiftEntity orderGiftEntity = new OrderGiftEntity();
-        orderGiftEntity.setOrderId(orderId);
+        orderGiftEntity.setId(orderId);
         orderGiftEntity.setStatus(status);
 
-        orderGiftDao.updateById(orderGiftEntity);
+        this.updateById(orderGiftEntity);
         return ResponseDTO.ok();
     }
 
@@ -78,27 +77,21 @@ public class OrderGiftService {
         orderGiftEntity.setContent(giftEntity.getContent());
         orderGiftEntity.setStatus(OrderStatusConst.UNSHIPPED);
 
-        orderGiftDao.insert(orderGiftEntity);
+        this.save(orderGiftEntity);
 
         //
         UserIntegralUpdateForm userIntegralUpdateForm = new UserIntegralUpdateForm();
         userIntegralUpdateForm.setUserId(orderGiftEntity.getUserId());
-        userIntegralUpdateForm.setRefId(orderGiftEntity.getOrderId());
+        userIntegralUpdateForm.setRefId(orderGiftEntity.getId());
         userIntegralUpdateForm.setRefType(RecordTypeConst.ORDER_GIFT);
         userIntegralUpdateForm.setIntegralChange(-total);
 
-        ObjectMapper objectMapper = new ObjectMapper();
         OrderGiftJsonVo orderGiftJsonVo = SmartBeanUtil.copy(orderGiftEntity, OrderGiftJsonVo.class);
-        try {
-            String content = objectMapper.writeValueAsString(orderGiftJsonVo);
-            userIntegralUpdateForm.setContent(content);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        String content = JSON.toJSONString(orderGiftJsonVo);
+        userIntegralUpdateForm.setContent(content);
 
         userIntegralService.update(userIntegralUpdateForm);
 
-
-        return ResponseDTO.ok(orderGiftEntity.getOrderId());
+        return ResponseDTO.ok(orderGiftEntity.getId());
     }
 }

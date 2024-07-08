@@ -1,5 +1,6 @@
 package net.tunie.sf.module.user.service;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
@@ -12,10 +13,7 @@ import net.tunie.sf.module.user.domain.form.UserIntegralUpdateForm;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserIntegralService {
-
-    @Resource
-    private UserIntegralDao userIntegralDao;
+public class UserIntegralService extends ServiceImpl<UserIntegralDao, UserIntegralEntity> {
 
     @Resource
     private UserIntegralRecordService userIntegralRecordService;
@@ -32,24 +30,26 @@ public class UserIntegralService {
         userIntegralRecordEntity.setUserId(userIntegralUpdateForm.getUserId());
         userIntegralRecordEntity.setIntegralChange(userIntegralUpdateForm.getIntegralChange());
         userIntegralRecordEntity.setRefId(recordId);
-        userIntegralRecordService.add(userIntegralRecordEntity);
+        userIntegralRecordService.save(userIntegralRecordEntity);
 
-        UserIntegralEntity userIntegralEntity = userIntegralDao.selectById(userIntegralUpdateForm.getUserId());
+        UserIntegralEntity userIntegralEntity = this.getById(userIntegralUpdateForm.getUserId());
         if (userIntegralEntity == null) {
+            // 创建新记录
             userIntegralEntity = new UserIntegralEntity();
             userIntegralEntity.setUserId(userIntegralUpdateForm.getUserId());
             userIntegralEntity.setIntegral(userIntegralRecordEntity.getIntegralChange());
-            userIntegralDao.insert(userIntegralEntity);
+            this.save(userIntegralEntity);
         } else {
+            // 更新用户积分
             Integer newIntegral = userIntegralEntity.getIntegral() + userIntegralUpdateForm.getIntegralChange();
             userIntegralEntity.setIntegral(newIntegral);
-            userIntegralDao.updateById(userIntegralEntity);
+            this.updateById(userIntegralEntity);
         }
     }
 
     public Integer queryUserIntegral(Long userId) {
 
-        UserIntegralEntity userIntegralEntity = userIntegralDao.selectById(userId);
+        UserIntegralEntity userIntegralEntity = this.getById(userId);
         int integral = 0;
         if (userIntegralEntity != null) {
             integral = userIntegralEntity.getIntegral();

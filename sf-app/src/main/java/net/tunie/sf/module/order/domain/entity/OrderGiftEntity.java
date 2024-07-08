@@ -2,17 +2,17 @@ package net.tunie.sf.module.order.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.tunie.sf.common.domain.BaseEntity;
+import net.tunie.sf.common.domain.BasicEntity;
 
 import java.time.LocalDateTime;
 
 @Data
 @TableName("t_order_gift")
-public class OrderGiftEntity {
-
-    @TableId(type= IdType.AUTO)
-    private Long orderId;
+public class OrderGiftEntity extends BaseEntity {
 
     private Long userId;
 
@@ -30,8 +30,5 @@ public class OrderGiftEntity {
 
     private Integer totalPrice;
 
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
 }
 

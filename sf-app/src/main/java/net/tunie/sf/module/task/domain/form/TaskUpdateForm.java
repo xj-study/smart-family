@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class TaskUpdateForm extends TaskAddForm {
 
-    private Long taskId;
+    private Long id;
 }

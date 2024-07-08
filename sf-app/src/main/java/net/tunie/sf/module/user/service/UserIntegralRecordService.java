@@ -2,6 +2,7 @@ package net.tunie.sf.module.user.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
@@ -13,17 +14,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UserIntegralRecordService {
-
-    @Resource
-    private UserIntegralRecordDao userIntegralRecordDao;
-
-    public void add(UserIntegralRecordEntity userIntegralRecordEntity) {
-        userIntegralRecordDao.insert(userIntegralRecordEntity);
-    }
+public class UserIntegralRecordService extends ServiceImpl<UserIntegralRecordDao, UserIntegralRecordEntity> {
 
     public ResponseDTO<List<UserIntegralRecordVo>> queryRecord(Long requestUserId) {
-        List<UserIntegralRecordVo> userIntegralRecordVos = userIntegralRecordDao.selectRecords(requestUserId);
+        List<UserIntegralRecordVo> userIntegralRecordVos = this.baseMapper.selectRecords(requestUserId);
         return ResponseDTO.ok(userIntegralRecordVos);
     }
 }

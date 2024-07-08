@@ -1,5 +1,7 @@
 package net.tunie.sf.module.story.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
@@ -15,37 +17,36 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class StoryLevelService {
-
-    @Resource
-    private StoryLevelDao storyLevelDao;
+public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEntity> {
 
 
     public ResponseDTO<Long> addStoryLevel(StoryLevelAddForm storyLevelAddForm) {
         StoryLevelEntity storyLevelEntity = SmartBeanUtil.copy(storyLevelAddForm, StoryLevelEntity.class);
-        storyLevelDao.insert(storyLevelEntity);
+        this.save(storyLevelEntity);
 
         return ResponseDTO.ok(storyLevelEntity.getId());
     }
 
     public ResponseDTO<String> updateStoryLevel(StoryLevelUpdateForm storyLevelUpdateForm) {
-        StoryLevelEntity storyLevelEntity = storyLevelDao.selectById(storyLevelUpdateForm.getId());
+        StoryLevelEntity storyLevelEntity = this.getById(storyLevelUpdateForm.getId());
         if (storyLevelEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
         storyLevelEntity = SmartBeanUtil.copy(storyLevelUpdateForm, StoryLevelEntity.class);
-        storyLevelDao.updateById(storyLevelEntity);
+        this.updateById(storyLevelEntity);
         return ResponseDTO.ok();
     }
 
-    public ResponseDTO<List<StoryLevelVo>> queryStoryLevelList(Long storyId, Boolean disableFlag) {
-        List<StoryLevelEntity> storyLevelEntities = storyLevelDao.selectStoryLevelList(storyId, disableFlag);
+    public ResponseDTO<List<StoryLevelVo>> queryStoryLevelList(Long storyId) {
+        LambdaQueryWrapper<StoryLevelEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(StoryLevelEntity::getStoryId, storyId);
+        List<StoryLevelEntity> storyLevelEntities = this.list(lambdaQueryWrapper);
         List<StoryLevelVo> storyLevelVos = SmartBeanUtil.copyList(storyLevelEntities, StoryLevelVo.class);
         return ResponseDTO.ok(storyLevelVos);
     }
 
     public ResponseDTO<StoryLevelVo> queryStoryLevel(Long storyLevelId) {
-        StoryLevelEntity storyLevelEntity = storyLevelDao.selectById(storyLevelId);
+        StoryLevelEntity storyLevelEntity = this.getById(storyLevelId);
         if (storyLevelEntity == null) {
             return ResponseDTO.ok(null);
         }
@@ -54,12 +55,11 @@ public class StoryLevelService {
     }
 
     public ResponseDTO<String> updateStoryLevelDisable(Long storyLevelId) {
-        StoryLevelEntity storyLevelEntity = storyLevelDao.selectById(storyLevelId);
+        StoryLevelEntity storyLevelEntity = this.getById(storyLevelId);
         if (storyLevelEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
-        storyLevelEntity.setDisableFlag(true);
-        storyLevelDao.updateById(storyLevelEntity);
+        this.removeById(storyLevelId);
         return ResponseDTO.ok();
     }
 }

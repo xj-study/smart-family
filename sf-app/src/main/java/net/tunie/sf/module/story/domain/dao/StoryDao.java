@@ -13,5 +13,4 @@ import java.util.List;
 @Mapper
 public interface StoryDao extends BaseMapper<StoryEntity> {
 
-    List<StoryEntity> queryStoryList(@Param("storyQueryForm") StoryQueryForm storyQueryForm);
 }

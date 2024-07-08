@@ -4,15 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.tunie.sf.common.domain.BaseEntity;
 
 import java.time.LocalDate;
 
 @TableName("t_story_level")
 @Data
-public class StoryLevelEntity {
-
-    @TableId(type= IdType.AUTO)
-    private Long id;
+public class StoryLevelEntity extends BaseEntity {
 
     private Integer order;
 
@@ -27,10 +25,4 @@ public class StoryLevelEntity {
     private Integer refType;
 
     private String refRules;
-
-    private Boolean disableFlag;
-
-    private LocalDate updateTime;
-
-    private LocalDate createTime;
 }

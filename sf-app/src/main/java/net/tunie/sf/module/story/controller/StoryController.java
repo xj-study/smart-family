@@ -33,7 +33,6 @@ public class StoryController {
     @PostMapping("/story/query")
     public ResponseDTO<List<StoryVo>> query(@RequestBody StoryQueryForm storyQueryForm) {
         storyQueryForm.setUserId(SmartRequestUtil.getRequestUserId());
-        storyQueryForm.setDisableFlag(false);
         return storyService.queryStoryList(storyQueryForm);
     }
 

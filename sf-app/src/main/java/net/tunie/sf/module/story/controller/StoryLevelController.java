@@ -27,12 +27,12 @@ public class StoryLevelController {
     }
 
     @GetMapping("/story/{storyId}/level/query")
-    public ResponseDTO<List<StoryLevelVo>> query(@PathVariable Long storyId, @RequestParam Boolean disableFlag) {
-        return storyLevelService.queryStoryLevelList(storyId, disableFlag);
+    public ResponseDTO<List<StoryLevelVo>> query(@PathVariable Long storyId) {
+        return storyLevelService.queryStoryLevelList(storyId);
     }
 
     @GetMapping("/story/level/{storyLevelId}/query")
-    public ResponseDTO<StoryLevelVo> query(@PathVariable Long storyLevelId) {
+    public ResponseDTO<StoryLevelVo> queryLevelDetail(@PathVariable Long storyLevelId) {
 
         return storyLevelService.queryStoryLevel(storyLevelId);
     }

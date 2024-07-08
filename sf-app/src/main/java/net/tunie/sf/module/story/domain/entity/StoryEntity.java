@@ -4,15 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.tunie.sf.common.domain.BaseEntity;
 
 import java.time.LocalDate;
 
 @TableName("t_story")
 @Data
-public class StoryEntity {
-
-    @TableId(type= IdType.AUTO)
-    private Long id;
+public class StoryEntity extends BaseEntity {
 
     private Long userId;
 
@@ -24,9 +22,4 @@ public class StoryEntity {
 
     private Integer costType;
 
-    private Boolean disableFlag;
-
-    private LocalDate updateTime;
-
-    private LocalDate createTime;
 }

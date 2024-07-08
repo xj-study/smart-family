@@ -1,10 +1,9 @@
 package net.tunie.sf.module.task.service;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
@@ -15,8 +14,6 @@ import net.tunie.sf.constant.RecordTypeConst;
 import net.tunie.sf.constant.TaskTypeConst;
 import net.tunie.sf.module.login.domain.RequestUser;
 import net.tunie.sf.module.task.constant.TaskDateTypeQueryConst;
-import net.tunie.sf.module.task.domain.dao.TaskDao;
-import net.tunie.sf.module.task.domain.dao.TaskIntegralDao;
 import net.tunie.sf.module.task.domain.dao.TaskRecordDao;
 import net.tunie.sf.module.task.domain.entity.TaskEntity;
 import net.tunie.sf.module.task.domain.entity.TaskIntegralEntity;
@@ -33,15 +30,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-public class TaskRecordService {
-    @Resource
-    private TaskRecordDao taskRecordDao;
+public class TaskRecordService extends ServiceImpl<TaskRecordDao, TaskRecordEntity> {
 
     @Resource
-    private TaskDao taskDao;
+    private TaskService taskService;
 
     @Resource
-    private TaskIntegralDao taskIntegralDao;
+    private TaskIntegralService taskIntegralService;
 
     @Resource
     private UserIntegralService userIntegralService;
@@ -49,7 +44,7 @@ public class TaskRecordService {
     private LocalDate getTaskDate(Integer dateType) {
         LocalDate taskDate = LocalDate.now();
         // 处理 task date
-        if(dateType == TaskDateTypeQueryConst.YESTODAY) {
+        if (dateType == TaskDateTypeQueryConst.YESTODAY) {
             //taskDate
             taskDate = taskDate.minusDays(1);
         }
@@ -70,7 +65,7 @@ public class TaskRecordService {
 
         LocalDate taskDate = this.getTaskDate(taskRecordQueryForm.getDate());
 
-        List<TaskRecordVo> taskRecordVos = taskRecordDao.queryDailyTaskRecord(taskUserId, recordUserId, taskDate, taskRecordQueryForm.getStatus());
+        List<TaskRecordVo> taskRecordVos = this.baseMapper.queryDailyTaskRecord(taskUserId, recordUserId, taskDate, taskRecordQueryForm.getStatus());
         return ResponseDTO.ok(taskRecordVos);
     }
 
@@ -85,21 +80,21 @@ public class TaskRecordService {
     }
 
 
-
     public ResponseDTO<Integer> updateTaskStatus(TaskRecordEntity taskRecordEntity, Integer status) {
         if (taskRecordEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
 
-        TaskEntity taskEntity = taskDao.selectById(taskRecordEntity.getTaskId());
+        TaskEntity taskEntity = this.taskService.getById(taskRecordEntity.getTaskId());
         status = getTaskUpdateStatus(taskRecordEntity, taskEntity, status);
 
         taskRecordEntity.setStatus(status);
-        taskRecordDao.updateById(taskRecordEntity);
+        this.updateById(taskRecordEntity);
 
         // 更新积分
         if (TaskStatusConst.COMPLETE == status) {
-            TaskIntegralEntity taskIntegralEntity = taskIntegralDao.selectById(taskRecordEntity.getTaskId());
+
+            TaskIntegralEntity taskIntegralEntity = this.taskIntegralService.getById(taskRecordEntity.getTaskId());
 
             UserIntegralUpdateForm userIntegralUpdateForm = new UserIntegralUpdateForm();
             userIntegralUpdateForm.setIntegralChange(taskIntegralEntity.getIntegral());
@@ -107,17 +102,12 @@ public class TaskRecordService {
             userIntegralUpdateForm.setRefType(RecordTypeConst.TASK);
             userIntegralUpdateForm.setRefId(taskRecordEntity.getId());
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.registerModule(new JavaTimeModule());
             TaskJsonVo taskJsonVo = SmartBeanUtil.copy(taskEntity, TaskJsonVo.class);
             taskJsonVo.setTaskDate(taskRecordEntity.getTaskDate());
             taskJsonVo.setId(taskRecordEntity.getId());
-            try {
-                String content = objectMapper.writeValueAsString(taskJsonVo);
-                userIntegralUpdateForm.setContent(content);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            String content = JSON.toJSONString(taskJsonVo);
+
+            userIntegralUpdateForm.setContent(content);
 
             userIntegralService.update(userIntegralUpdateForm);
         }
@@ -126,7 +116,7 @@ public class TaskRecordService {
     }
 
     public ResponseDTO<Integer> updateTaskStatus(Long id, Integer status) {
-        TaskRecordEntity taskRecordEntity = taskRecordDao.selectById(id);
+        TaskRecordEntity taskRecordEntity = this.getById(id);
         return this.updateTaskStatus(taskRecordEntity, status);
     }
 
@@ -137,8 +127,10 @@ public class TaskRecordService {
         queryTaskRecordEntity.setTaskId(taskRecordCompleteForm.getTaskId());
         queryTaskRecordEntity.setUserId(taskRecordCompleteForm.getUserId());
         queryTaskRecordEntity.setTaskDate(taskDate);
+
         QueryWrapper<TaskRecordEntity> query = Wrappers.query(queryTaskRecordEntity);
-        TaskRecordEntity selectOne = taskRecordDao.selectOne(query);
+
+        TaskRecordEntity selectOne = this.getOne(query);
         if (selectOne != null) {
             return this.updateTaskStatus(selectOne, taskRecordCompleteForm.getStatus());
         } else {
@@ -146,7 +138,7 @@ public class TaskRecordService {
             TaskRecordEntity taskRecordEntity = SmartBeanUtil.copy(taskRecordCompleteForm, TaskRecordEntity.class);
             taskRecordEntity.setTaskDate(taskDate);
             taskRecordEntity.setStatus(TaskStatusConst.INIT);
-            taskRecordDao.insert(taskRecordEntity);
+            this.save(taskRecordEntity);
             return this.updateTaskStatus(taskRecordEntity, taskRecordCompleteForm.getStatus());
         }
 
@@ -159,7 +151,7 @@ public class TaskRecordService {
         }
 
         // 数据不存在
-        TaskRecordEntity taskRecordEntity = taskRecordDao.selectById(id);
+        TaskRecordEntity taskRecordEntity = this.getById(id);
         if (taskRecordEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
@@ -171,7 +163,7 @@ public class TaskRecordService {
 
         // 审核通过更新
         taskRecordEntity.setStatus(TaskStatusConst.COMPLETE);
-        taskRecordDao.updateById(taskRecordEntity);
+        this.updateById(taskRecordEntity);
 
         return ResponseDTO.ok();
     }

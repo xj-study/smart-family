@@ -14,6 +14,8 @@ public class TaskRecordVo {
 
     private String content;
 
+    private String rules;
+
     private LocalDate taskDate;
 
     private Integer status;

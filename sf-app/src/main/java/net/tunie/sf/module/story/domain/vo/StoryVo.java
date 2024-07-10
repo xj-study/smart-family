@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class StoryVo {
@@ -19,5 +20,7 @@ public class StoryVo {
 
     private Integer costType;
 
-    private LocalDate createTime;
+    private Integer status;
+
+    private LocalDateTime createTime;
 }

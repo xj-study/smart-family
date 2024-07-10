@@ -7,5 +7,5 @@ public class StoryQueryForm {
 
     private Long userId;
 
-    private Boolean disableFlag;
+    private Integer status;
 }

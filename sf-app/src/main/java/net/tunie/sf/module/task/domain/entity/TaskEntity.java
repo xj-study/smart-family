@@ -20,5 +20,7 @@ public class TaskEntity extends BaseEntity {
 
     private String content;
 
+    private String rules;
+
     private Boolean verifyFlag;
 }

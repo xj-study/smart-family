@@ -11,6 +11,8 @@ public class TaskAddForm {
 
     private String content;
 
+    private String rules;
+
     private Boolean verifyFlag;
 
     private Boolean disableFlag;

@@ -4,6 +4,8 @@ import jakarta.annotation.Resource;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartRequestUtil;
 import net.tunie.sf.common.utils.SmartUserUtil;
+import net.tunie.sf.constant.DisableFlagConst;
+import net.tunie.sf.module.story.constant.StoryStatusConst;
 import net.tunie.sf.module.story.domain.form.StoryAddForm;
 import net.tunie.sf.module.story.domain.form.StoryQueryForm;
 import net.tunie.sf.module.story.domain.form.StoryUpdateForm;
@@ -30,15 +32,26 @@ public class StoryController {
         return storyService.updateStory(storyUpdateForm);
     }
 
+    @PostMapping("/story/{storyId}/publish")
+    public ResponseDTO<String> update(@PathVariable Long storyId) {
+        StoryUpdateForm storyUpdateForm = new StoryUpdateForm(storyId);
+        storyUpdateForm.setStatus(StoryStatusConst.PUBLISHED);
+
+        return storyService.updateStory(storyUpdateForm);
+    }
+
+    @PostMapping("/story/{storyId}/offshelf")
+    public ResponseDTO<String> updateOffShelf(@PathVariable Long storyId) {
+        StoryUpdateForm storyUpdateForm = new StoryUpdateForm(storyId);
+        storyUpdateForm.setStatus(StoryStatusConst.OFF_SHELF);
+
+        return storyService.updateStory(storyUpdateForm);
+    }
+
     @PostMapping("/story/query")
     public ResponseDTO<List<StoryVo>> query(@RequestBody StoryQueryForm storyQueryForm) {
         storyQueryForm.setUserId(SmartRequestUtil.getRequestUserId());
         return storyService.queryStoryList(storyQueryForm);
-    }
-
-    @GetMapping("/story/disabled/query")
-    public ResponseDTO<List<StoryVo>> queryDisable() {
-        return storyService.queryDisableStoryList(SmartRequestUtil.getRequestUserId());
     }
 
     @GetMapping("/story/{storyId}/query")
@@ -46,8 +59,4 @@ public class StoryController {
         return storyService.queryStory(storyId);
     }
 
-    @GetMapping("/story/{storyId}/update/disable")
-    public ResponseDTO<String> updateDisableFlag(@PathVariable Long storyId) {
-        return storyService.updateStoryDisable(storyId);
-    }
 }

@@ -8,10 +8,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
+import net.tunie.sf.module.login.domain.RegisterForm;
 import net.tunie.sf.module.login.domain.RequestUser;
 import net.tunie.sf.module.login.service.LoginService;
 import net.tunie.sf.module.user.domain.dao.UserDao;
 import net.tunie.sf.module.user.domain.entity.UserEntity;
+import net.tunie.sf.module.user.domain.form.UserAddChildForm;
 import net.tunie.sf.module.user.domain.form.UserAddForm;
 import net.tunie.sf.module.user.domain.form.UserUpdateForm;
 import net.tunie.sf.module.user.domain.vo.UserVo;
@@ -22,22 +24,40 @@ import java.util.List;
 @Service
 public class UserService extends ServiceImpl<UserDao, UserEntity> {
 
-    //@Resource
-    //private UserDao userDao;
-    //
-    //
-    //public ResponseDTO<String> addUser(UserAddForm userAddForm) {
-    //    userDao.insert(SmartBeanUtil.copy(userAddForm, UserEntity.class));
-    //    return ResponseDTO.ok();
-    //}
-    //
-    //
-    //public ResponseDTO<List<UserVo>> queryUser() {
-    //    List<UserEntity> userEntities = userDao.selectList(null);
-    //    List<UserVo> userVos = SmartBeanUtil.copyList(userEntities, UserVo.class);
-    //    return ResponseDTO.ok(userVos);
-    //}
-    //
+    public ResponseDTO<String> addUser(RegisterForm registerForm) {
+        UserEntity userEntity = this.getUserByNameOrMobile(registerForm.getName(), registerForm.getName());
+
+        if (userEntity != null) {
+            return ResponseDTO.userErrorParams("用户名或手机号已经注册了！");
+        }
+
+        if(!registerForm.getPassword().equals(registerForm.getConfirmPassword())) {
+            return ResponseDTO.userErrorParams("密码不一致！");
+        }
+
+        UserEntity newUserEntity = SmartBeanUtil.copy(registerForm, UserEntity.class);
+        newUserEntity.setNickname(registerForm.getName());
+        this.save(newUserEntity);
+        return ResponseDTO.ok();
+    }
+
+    public ResponseDTO<UserVo> addChild(UserAddChildForm userAddChildForm) {
+        UserEntity userEntity = this.getUserByNameOrMobile(userAddChildForm.getName(), "");
+        if (userEntity != null) {
+            return ResponseDTO.userErrorParams("用户名已经注册了！");
+        }
+
+        if(!userAddChildForm.getPassword().equals(userAddChildForm.getConfirmPassword())) {
+            return ResponseDTO.userErrorParams("密码不一致！");
+        }
+
+        UserEntity newUserEntity = SmartBeanUtil.copy(userAddChildForm, UserEntity.class);
+        this.save(newUserEntity);
+
+        UserVo userVo = SmartBeanUtil.copy(newUserEntity, UserVo.class);
+        return ResponseDTO.ok(userVo);
+    }
+
     public ResponseDTO<String> updateUser(UserUpdateForm userUpdateForm) {
         UserEntity userEntity = SmartBeanUtil.copy(userUpdateForm, UserEntity.class);
         this.updateById(userEntity);
@@ -46,25 +66,19 @@ public class UserService extends ServiceImpl<UserDao, UserEntity> {
 
     //
     public UserEntity getUserByNameOrMobile(String userName, String mobile) {
+        if (userName == null && mobile == null) {
+            return null;
+        }
         LambdaQueryWrapper<UserEntity> userEntityQueryWrapper = new LambdaQueryWrapper<>();
-        userEntityQueryWrapper.eq(UserEntity::getName, userName).or().eq(UserEntity::getMobile, mobile);
+        if (userName == null) {
+            userEntityQueryWrapper.eq(UserEntity::getMobile, mobile);
+        } else if (mobile == null) {
+            userEntityQueryWrapper.eq(UserEntity::getName, userName);
+        } else {
+            userEntityQueryWrapper.eq(UserEntity::getName, userName).or().eq(UserEntity::getMobile, mobile);
+        }
         return this.getOne(userEntityQueryWrapper);
     }
-
-    //
-    //public UserEntity getUserById(Long userId) {
-    //    return userDao.selectById(userId);
-    //}
-    //
-    //public ResponseDTO<String> bindParent(Long userId, Long parentId) {
-    //    UserEntity userEntity = userDao.selectById(parentId);
-    //    if (userEntity == null) {
-    //        return ResponseDTO.userErrorParams("绑定的帐户不存在");
-    //    }
-    //    userDao.bindParent(userId, parentId);
-    //    return ResponseDTO.ok();
-    //}
-    //
     public ResponseDTO<List<UserVo>> getUserChildren(Long parentId) {
 
         LambdaQueryWrapper<UserEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();

@@ -18,6 +18,8 @@ public class StoryEntity extends BaseEntity {
 
     private String content;
 
+    private Integer status;
+
     private Integer costAmount;
 
     private Integer costType;

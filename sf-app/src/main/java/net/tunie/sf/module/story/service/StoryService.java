@@ -6,6 +6,7 @@ import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
+import net.tunie.sf.constant.DisableFlagConst;
 import net.tunie.sf.module.story.domain.dao.StoryDao;
 import net.tunie.sf.module.story.domain.dao.StoryLevelDao;
 import net.tunie.sf.module.story.domain.entity.StoryEntity;
@@ -40,15 +41,10 @@ public class StoryService extends ServiceImpl<StoryDao, StoryEntity> {
     public ResponseDTO<List<StoryVo>> queryStoryList(StoryQueryForm storyQueryForm) {
         LambdaQueryWrapper<StoryEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(StoryEntity::getUserId, storyQueryForm.getUserId());
+        if (storyQueryForm.getStatus() != null) {
+            lambdaQueryWrapper.eq(StoryEntity::getStatus, storyQueryForm.getStatus());
+        }
         List<StoryEntity> storyEntities = this.list(lambdaQueryWrapper);
-        List<StoryVo> storyVos = SmartBeanUtil.copyList(storyEntities, StoryVo.class);
-        return ResponseDTO.ok(storyVos);
-    }
-
-    public ResponseDTO<List<StoryVo>> queryDisableStoryList(Long userId) {
-        LambdaQueryWrapper<StoryEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(StoryEntity::getUserId, userId);
-        List<StoryEntity> storyEntities = this.baseMapper.selectIgnoreLogicDelete(lambdaQueryWrapper);
         List<StoryVo> storyVos = SmartBeanUtil.copyList(storyEntities, StoryVo.class);
         return ResponseDTO.ok(storyVos);
     }
@@ -60,14 +56,5 @@ public class StoryService extends ServiceImpl<StoryDao, StoryEntity> {
         }
         StoryVo storyVo = SmartBeanUtil.copy(storyEntity, StoryVo.class);
         return ResponseDTO.ok(storyVo);
-    }
-
-    public ResponseDTO<String> updateStoryDisable(Long storyId) {
-        StoryEntity storyEntity = this.getById(storyId);
-        if (storyEntity == null) {
-            return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
-        }
-        this.removeById(storyId);
-        return ResponseDTO.ok();
     }
 }

@@ -7,6 +7,7 @@ import net.tunie.sf.common.utils.SmartRequestUtil;
 import net.tunie.sf.module.login.domain.RequestUser;
 import net.tunie.sf.module.login.service.LoginService;
 import net.tunie.sf.module.user.domain.entity.UserEntity;
+import net.tunie.sf.module.user.domain.form.UserAddChildForm;
 import net.tunie.sf.module.user.domain.form.UserAddForm;
 import net.tunie.sf.module.user.domain.form.UserUpdateForm;
 import net.tunie.sf.module.user.domain.vo.UserVo;
@@ -23,22 +24,12 @@ public class UserController {
     @Resource
     private LoginService loginService;
 
-    //@PostMapping("/user/add")
-    //public ResponseDTO<String> add(@RequestBody UserAddForm userAddForm){
-    //    return userService.addUser(userAddForm);
-    //}
-    //
-    //
-    //@GetMapping("/user/bind/{parentId}")
-    //public ResponseDTO<String> bindParent(@PathVariable Long parentId) {
-    //    Long requestUserId = SmartRequestUtil.getRequestUserId();
-    //    return userService.bindParent(requestUserId, parentId);
-    //}
-
-    //@GetMapping("/user/{id}/query")
-    //public ResponseDTO<UserVo> queryDetail(@PathVariable Long id) {
-    //    return userService.queryDetail(id);
-    //}
+    @PostMapping("/user/add/child")
+    public ResponseDTO<UserVo> addChild(@RequestBody UserAddChildForm userAddChildForm){
+        Long requestUserId = SmartRequestUtil.getRequestUserId();
+        userAddChildForm.setParentId(requestUserId);
+        return userService.addChild(userAddChildForm);
+    }
 
     @GetMapping("/user/query")
     public ResponseDTO<RequestUser> query() {

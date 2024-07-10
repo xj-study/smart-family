@@ -14,4 +14,6 @@ public class StoryAddForm {
     private Integer costAmount;
 
     private Integer costType;
+
+    private Integer status;
 }

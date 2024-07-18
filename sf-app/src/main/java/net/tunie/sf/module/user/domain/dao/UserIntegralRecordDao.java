@@ -1,6 +1,7 @@
 package net.tunie.sf.module.user.domain.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import net.tunie.sf.module.user.domain.entity.UserIntegralRecordEntity;
 import net.tunie.sf.module.user.domain.vo.UserIntegralRecordVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -17,5 +18,5 @@ public interface UserIntegralRecordDao extends BaseMapper<UserIntegralRecordEnti
             "LEFT JOIN t_record as R on IR.ref_id = R.id " +
             "WHERE IR.user_id = #{userId} " +
             "ORDER BY IR.update_time DESC")
-    List<UserIntegralRecordVo> selectRecords(@Param("userId") Long userId);
+    IPage<UserIntegralRecordVo> selectRecords(IPage<UserIntegralRecordVo> page, @Param("userId") Long userId);
 }

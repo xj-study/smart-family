@@ -1,6 +1,7 @@
 package net.tunie.sf.module.story.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
@@ -19,9 +20,34 @@ import java.util.List;
 @Service
 public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEntity> {
 
+    public List<StoryLevelEntity> getStoryLevelByOrder(StoryLevelEntity storyLevelEntity) {
+        if (storyLevelEntity == null) return null;
+        if (storyLevelEntity.getLevelOrder() == -1) return null;
+        LambdaQueryWrapper<StoryLevelEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(StoryLevelEntity::getStoryId, storyLevelEntity.getStoryId());
+        lambdaQueryWrapper.eq(StoryLevelEntity::getLevelOrder, storyLevelEntity.getLevelOrder());
+        lambdaQueryWrapper.ne(storyLevelEntity.getId() != null, StoryLevelEntity::getId, storyLevelEntity.getId());
+
+        return this.list(lambdaQueryWrapper);
+    }
+
+    public void updateStoreLevelOrder(StoryLevelEntity storyLevelEntity) {
+        List<StoryLevelEntity> storyLevelByOrder = this.getStoryLevelByOrder(storyLevelEntity);
+        if (storyLevelByOrder == null) {
+            return;
+        }
+        storyLevelByOrder.forEach(item -> {
+            item.setLevelOrder(0);
+            this.updateById(item);
+        });
+
+    }
 
     public ResponseDTO<Long> addStoryLevel(StoryLevelAddForm storyLevelAddForm) {
         StoryLevelEntity storyLevelEntity = SmartBeanUtil.copy(storyLevelAddForm, StoryLevelEntity.class);
+
+        this.updateStoreLevelOrder(storyLevelEntity);
+
         this.save(storyLevelEntity);
 
         return ResponseDTO.ok(storyLevelEntity.getId());
@@ -32,17 +58,31 @@ public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEnti
         if (storyLevelEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
+
         storyLevelEntity = SmartBeanUtil.copy(storyLevelUpdateForm, StoryLevelEntity.class);
+
+        this.updateStoreLevelOrder(storyLevelEntity);
         this.updateById(storyLevelEntity);
         return ResponseDTO.ok();
     }
 
-    public ResponseDTO<List<StoryLevelVo>> queryStoryLevelList(Long storyId) {
+    public ResponseDTO<List<StoryLevelVo>> queryStoryLevelList(Long storyId, long size) {
         LambdaQueryWrapper<StoryLevelEntity> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(StoryLevelEntity::getStoryId, storyId);
-        List<StoryLevelEntity> storyLevelEntities = this.list(lambdaQueryWrapper);
+        lambdaQueryWrapper.orderByAsc(StoryLevelEntity::getLevelOrder);
+        List<StoryLevelEntity> storyLevelEntities = null;
+        if (size >= 0) {
+            storyLevelEntities = this.list(new Page<>(1, size), lambdaQueryWrapper);
+            //storyLevelEntities = this.page(new Page<>(1, size), lambdaQueryWrapper).getRecords();
+        } else {
+            storyLevelEntities = this.list(lambdaQueryWrapper);
+        }
         List<StoryLevelVo> storyLevelVos = SmartBeanUtil.copyList(storyLevelEntities, StoryLevelVo.class);
         return ResponseDTO.ok(storyLevelVos);
+    }
+
+    public ResponseDTO<List<StoryLevelVo>> queryStoryLevelList(Long storyId) {
+        return this.queryStoryLevelList(storyId, -1);
     }
 
     public ResponseDTO<StoryLevelVo> queryStoryLevel(Long storyLevelId) {

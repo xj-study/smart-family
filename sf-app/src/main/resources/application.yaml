@@ -1,3 +1,6 @@
+sf-app:
+  story:
+    pre-level: 1
 spring:
   # 数据库连接信息
   datasource:

@@ -13,6 +13,8 @@ public class StoryLevelAddForm {
 
     private String content;
 
+    private Integer prize;
+
     private Integer refType;
 
     private String refRules;

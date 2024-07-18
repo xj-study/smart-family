@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class StoryLevelVo {
@@ -13,13 +14,20 @@ public class StoryLevelVo {
 
     private Integer levelOrder;
 
+    private Long storyId;
+
     private String title;
 
     private String content;
+
+    private Integer prize;
 
     private Integer refType;
 
     private String refRules;
 
-    private LocalDate createTime;
+    private LocalDateTime createTime;
+
+    // 状态 true(通关)
+    private Boolean pass;
 }

@@ -1,5 +1,6 @@
 package net.tunie.sf.common.domain;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.Data;
 import net.tunie.sf.common.code.ErrorCode;
 import net.tunie.sf.common.code.UserErrorCode;
@@ -58,13 +59,23 @@ public class ResponseDTO<T> {
         this.data = data;
     }
 
-
+    // --------------------------------------------错误码-------------------------------------------
     public static <T> ResponseDTO<T> ok() {
         return new ResponseDTO<>(OK_CODE, null, OK_MSG, true);
     }
 
     public static <T> ResponseDTO<T> ok(T data) {
         return new ResponseDTO<>(OK_CODE, null, OK_MSG, true, data);
+    }
+
+    public static <T> ResponseDTO<PageDTO<T>> page(IPage<T> page) {
+        PageDTO<T> pageDTO = new PageDTO<>();
+        pageDTO.setTotal(page.getTotal());
+        pageDTO.setPages(page.getPages());
+        pageDTO.setNum(page.getCurrent());
+        pageDTO.setSize(page.getSize());
+        pageDTO.setRecords(page.getRecords());
+        return ok(pageDTO);
     }
 
     // --------------------------------------------错误码-------------------------------------------

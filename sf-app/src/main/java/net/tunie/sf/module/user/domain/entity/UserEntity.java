@@ -1,18 +1,14 @@
 package net.tunie.sf.module.user.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.tunie.sf.common.domain.BaseEntity;
+import net.tunie.sf.common.domain.BasicEntity;
 
-import java.time.LocalDateTime;
 
 @Data
 @TableName("t_user")
-public class UserEntity {
-
-    @TableId(type = IdType.AUTO)
-    private Long id;
+public class UserEntity extends BaseEntity {
 
     private String name;
 
@@ -23,8 +19,4 @@ public class UserEntity {
     private String password;
 
     private Long parentId;
-
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
 }

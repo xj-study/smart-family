@@ -1,3 +1,6 @@
+sf-app:
+  story:
+    pre-level: 1
 spring:
   # 数据库连接信息
   datasource:
@@ -10,5 +13,10 @@ spring:
       enabled: true
       additional-paths: src/main/java
 mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-value: 1 # 逻辑已删除值
+      logic-not-delete-value: 0 # 逻辑未删除值
+
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

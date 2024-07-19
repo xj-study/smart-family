@@ -4,14 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.tunie.sf.common.domain.BaseEntity;
 
 import java.time.LocalDateTime;
 
 @Data
 @TableName("t_record")
-public class RecordEntity {
-    @TableId(type = IdType.AUTO)
-    private Long id;
+public class RecordEntity extends BaseEntity {
 
     private Long refId;
 
@@ -21,7 +20,4 @@ public class RecordEntity {
 
     private String content;
 
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
 }

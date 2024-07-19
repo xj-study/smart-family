@@ -3,10 +3,11 @@
 <mapper namespace="net.tunie.sf.module.task.domain.dao.TaskRecordDao">
 
     <select id="queryDailyTaskRecord" resultType="net.tunie.sf.module.task.domain.vo.TaskRecordVo">
-        select T.*, coalesce(R.status, 0) as status, R.id, R.task_date, coalesce(I.integral, 0) as integral
+        select T.title, T.content, T.task_type, T.verify_flag, T.id as task_id, T.rules,
+        coalesce(R.status, 0) as status, R.id, R.task_date, coalesce(I.integral, 0) as integral
         from t_task as T
-        left join t_task_record as R on T.task_id = R.task_id and R.user_id = #{recordUserId} and R.task_date = #{taskDate}
-        left join t_task_integral as I on T.task_id = I.task_id
+        left join t_task_record as R on T.id = R.task_id and R.user_id = #{recordUserId} and R.task_date = #{taskDate}
+        left join t_task_integral as I on T.id = I.task_id
         <where>
             T.user_id = #{taskUserId}
 

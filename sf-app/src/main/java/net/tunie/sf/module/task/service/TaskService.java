@@ -1,7 +1,9 @@
 package net.tunie.sf.module.task.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
@@ -18,33 +20,31 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TaskService {
+public class TaskService extends ServiceImpl<TaskDao, TaskEntity> {
+
 
     @Resource
-    private TaskDao taskDao;
-
-    @Resource
-    private TaskIntegralDao taskIntegralDao;
+    private TaskIntegralService taskIntegralService;
 
     public ResponseDTO<Long> addTask(TaskAddForm taskAddForm) {
         TaskEntity taskEntity = SmartBeanUtil.copy(taskAddForm, TaskEntity.class);
-        taskDao.insert(taskEntity);
+        this.save(taskEntity);
 
         TaskIntegralEntity taskIntegralEntity = new TaskIntegralEntity();
-        taskIntegralEntity.setTaskId(taskEntity.getTaskId());
+        taskIntegralEntity.setTaskId(taskEntity.getId());
         taskIntegralEntity.setIntegral(taskAddForm.getIntegral());
-        taskIntegralDao.insert(taskIntegralEntity);
+        taskIntegralService.save(taskIntegralEntity);
 
-        return ResponseDTO.ok(taskEntity.getTaskId());
+        return ResponseDTO.ok(taskEntity.getId());
     }
 
     public ResponseDTO<List<TaskVo>> queryTask(Long requestUserId) {
-        List<TaskVo> taskVos = taskDao.queryTask(requestUserId, false);
+        List<TaskVo> taskVos = this.baseMapper.getTaskList(requestUserId);
         return ResponseDTO.ok(taskVos);
     }
 
     public ResponseDTO<String> updateTask(TaskUpdateForm taskUpdateForm) {
-        TaskEntity taskEntity = taskDao.selectById(taskUpdateForm.getTaskId());
+        TaskEntity taskEntity = this.getById(taskUpdateForm.getId());
         if (taskEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
@@ -54,23 +54,27 @@ public class TaskService {
         }
 
         TaskEntity updateTaskEntity = SmartBeanUtil.copy(taskUpdateForm, TaskEntity.class);
-        taskDao.updateById(updateTaskEntity);
+        this.updateById(updateTaskEntity);
 
-        TaskIntegralEntity taskIntegralEntity = taskIntegralDao.selectById(taskUpdateForm.getTaskId());
+        TaskIntegralEntity taskIntegralEntity = this.taskIntegralService.getById(taskUpdateForm.getId());
         if (taskIntegralEntity == null) {
             taskIntegralEntity = SmartBeanUtil.copy(taskUpdateForm, TaskIntegralEntity.class);
-            taskIntegralDao.insert(taskIntegralEntity);
+            this.taskIntegralService.save(taskIntegralEntity);
         } else {
             taskIntegralEntity.setIntegral(taskUpdateForm.getIntegral());
-            taskIntegralDao.updateById(taskIntegralEntity);
+            this.taskIntegralService.updateById(taskIntegralEntity);
         }
 
         return ResponseDTO.ok();
     }
 
     public ResponseDTO<String> updateDisableFlag(Long id) {
-        TaskEntity taskEntity = taskDao.selectById(id);
-        taskDao.updateDisableFlag(id, !taskEntity.getDisableFlag());
+        TaskEntity taskEntity = this.getById(id);
+        if (taskEntity == null) {
+            return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
+        }
+        this.removeById(id);
+
         return ResponseDTO.ok();
     }
 }

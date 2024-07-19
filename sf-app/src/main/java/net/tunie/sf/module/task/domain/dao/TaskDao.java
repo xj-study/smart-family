@@ -5,6 +5,7 @@ import net.tunie.sf.module.task.domain.entity.TaskEntity;
 import net.tunie.sf.module.task.domain.vo.TaskVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 @Mapper
 @Component
 public interface TaskDao extends BaseMapper<TaskEntity> {
-    void updateDisableFlag(@Param("id") Long id, @Param("disableFlag") boolean disableFlag);
 
-    List<TaskVo> queryTask(@Param("userId") Long userId,  @Param("disableFlag") boolean disableFlag);
+    @Select("SELECT * FROM t_task T LEFT JOIN t_task_integral I ON T.id = I.task_id WHERE T.user_id = #{userId}")
+    List<TaskVo> getTaskList(@Param("userId") Long requestUserId);
 }

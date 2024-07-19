@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class GiftUpdateForm extends GiftAddForm {
-    private Long giftId;
+    private Long id;
 }

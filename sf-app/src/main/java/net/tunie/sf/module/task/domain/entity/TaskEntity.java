@@ -4,15 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.tunie.sf.common.domain.BaseEntity;
 
 import java.time.LocalDateTime;
 
 @TableName("t_task")
 @Data
-public class TaskEntity {
-
-    @TableId(type = IdType.AUTO)
-    private Long taskId;
+public class TaskEntity extends BaseEntity {
 
     private Long userId;
 
@@ -22,11 +20,7 @@ public class TaskEntity {
 
     private String content;
 
+    private String rules;
+
     private Boolean verifyFlag;
-
-    private Boolean disableFlag;
-
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
 }

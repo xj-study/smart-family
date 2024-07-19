@@ -4,16 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.tunie.sf.common.domain.BaseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @TableName("t_task_record")
 @Data
-public class TaskRecordEntity {
-
-    @TableId(type = IdType.AUTO)
-    private Long id;
+public class TaskRecordEntity extends BaseEntity {
 
     private Long taskId;
 
@@ -22,8 +20,4 @@ public class TaskRecordEntity {
     private LocalDate taskDate;
 
     private Integer status;
-
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
 }

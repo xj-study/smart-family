@@ -2,13 +2,10 @@ package net.tunie.sf.module.story.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
-import net.tunie.sf.constant.DisableFlagConst;
 import net.tunie.sf.module.story.domain.dao.StoryDao;
-import net.tunie.sf.module.story.domain.dao.StoryLevelDao;
 import net.tunie.sf.module.story.domain.entity.StoryEntity;
 import net.tunie.sf.module.story.domain.form.StoryAddForm;
 import net.tunie.sf.module.story.domain.form.StoryQueryForm;
@@ -44,6 +41,7 @@ public class StoryService extends ServiceImpl<StoryDao, StoryEntity> {
         if (storyQueryForm.getStatus() != null) {
             lambdaQueryWrapper.eq(StoryEntity::getStatus, storyQueryForm.getStatus());
         }
+        lambdaQueryWrapper.orderByDesc(StoryEntity::getUpdateTime);
         List<StoryEntity> storyEntities = this.list(lambdaQueryWrapper);
         List<StoryVo> storyVos = SmartBeanUtil.copyList(storyEntities, StoryVo.class);
         return ResponseDTO.ok(storyVos);

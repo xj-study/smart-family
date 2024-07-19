@@ -12,6 +12,7 @@
                 and SR.status = #{query.recordStatus}
             </if>
         </where>
+        order by S.update_time Desc
 
     </select>
 

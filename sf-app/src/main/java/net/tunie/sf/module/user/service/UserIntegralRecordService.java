@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class UserIntegralRecordService extends ServiceImpl<UserIntegralRecordDao, UserIntegralRecordEntity> {
 
     public ResponseDTO<PageDTO<UserIntegralRecordVo>> queryRecord(Long requestUserId, PageParam pageParam) {
-        Page<UserIntegralRecordVo> page = SmartPageUtil.convertPageParam(pageParam);
+        Page<UserIntegralRecordVo> page = SmartPageUtil.convert2PageParam(pageParam);
         IPage<UserIntegralRecordVo> userIntegralRecordVoIPage = this.baseMapper.selectRecords(page, requestUserId);
         userIntegralRecordVoIPage.setRecords(this.parseContent(userIntegralRecordVoIPage.getRecords()));
         return ResponseDTO.page(userIntegralRecordVoIPage);

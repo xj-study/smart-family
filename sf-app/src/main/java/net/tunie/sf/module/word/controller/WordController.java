@@ -33,5 +33,4 @@ public class WordController {
         return wordService.updateWord(wordUpdateForm);
     }
 
-
 }

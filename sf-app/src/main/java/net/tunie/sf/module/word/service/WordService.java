@@ -1,5 +1,6 @@
 package net.tunie.sf.module.word.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -18,7 +19,9 @@ import net.tunie.sf.module.word.domain.form.WordUpdateForm;
 import net.tunie.sf.module.word.domain.vo.WordVo;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class WordService extends ServiceImpl<WordDao, WordEntity> {
@@ -58,5 +61,45 @@ public class WordService extends ServiceImpl<WordDao, WordEntity> {
         WordEntity entity = SmartBeanUtil.copy(wordUpdateForm, WordEntity.class);
         this.updateById(entity);
         return ResponseDTO.ok();
+    }
+
+    public List<WordEntity> randomWordList(Integer selectNum) {
+
+        List<WordEntity> list = new ArrayList<>(selectNum);
+        while (selectNum > 0) {
+            WordEntity entity = this.randomWord();
+            if (list.contains(entity)) continue;
+
+            list.add(entity);
+            selectNum--;
+        }
+
+        return list;
+    }
+
+    /**
+     * 根据 字词 的难度随机获取
+     *
+     * @param level
+     * @return
+     */
+    public WordEntity randomWordByLevel(Integer level) {
+        return this.randomWord(Wrappers.lambdaQuery(WordEntity.class).eq(WordEntity::getLevel, level));
+    }
+
+    public WordEntity randomWord(Wrapper<WordEntity> wrapper) {
+        long count = this.count(wrapper);
+        Random random = new Random();
+        long idx = random.nextLong(count);
+        List<WordEntity> list = this.list(new Page<>(idx + 1, 1), wrapper);
+        return list.get(0);
+    }
+
+    public WordEntity randomWord() {
+        long count = this.count();
+        Random random = new Random();
+        long idx = random.nextLong(count);
+        List<WordEntity> list = this.list(new Page<>(idx + 1, 1));
+        return list.get(0);
     }
 }

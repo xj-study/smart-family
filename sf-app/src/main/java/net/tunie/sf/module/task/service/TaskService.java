@@ -1,15 +1,14 @@
 package net.tunie.sf.module.task.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
+import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
-import net.tunie.sf.module.task.domain.dao.TaskIntegralDao;
 import net.tunie.sf.module.task.domain.entity.TaskEntity;
 import net.tunie.sf.module.task.domain.entity.TaskIntegralEntity;
 import net.tunie.sf.module.task.domain.form.TaskAddForm;
@@ -20,8 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TaskService extends ServiceImpl<TaskDao, TaskEntity> {
-
+public class TaskService extends ServiceImpl<TaskDao, TaskEntity> implements RulesService {
 
     @Resource
     private TaskIntegralService taskIntegralService;
@@ -76,5 +74,14 @@ public class TaskService extends ServiceImpl<TaskDao, TaskEntity> {
         this.removeById(id);
 
         return ResponseDTO.ok();
+    }
+
+    @Override
+    public JSONObject getRules(Long id) {
+        TaskEntity entity = this.getById(id);
+        if (entity.getRules() != null) {
+            return JSON.parseObject(entity.getRules());
+        }
+        return null;
     }
 }

@@ -1,24 +1,24 @@
 package net.tunie.sf.module.story.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
+import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.module.story.domain.dao.StoryLevelDao;
-import net.tunie.sf.module.story.domain.entity.StoryEntity;
 import net.tunie.sf.module.story.domain.entity.StoryLevelEntity;
-import net.tunie.sf.module.story.domain.form.*;
+import net.tunie.sf.module.story.domain.form.StoryLevelAddForm;
+import net.tunie.sf.module.story.domain.form.StoryLevelUpdateForm;
 import net.tunie.sf.module.story.domain.vo.StoryLevelVo;
-import net.tunie.sf.module.story.domain.vo.StoryVo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEntity> {
+public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEntity> implements RulesService {
 
     public List<StoryLevelEntity> getStoryLevelByOrder(StoryLevelEntity storyLevelEntity) {
         if (storyLevelEntity == null) return null;
@@ -101,5 +101,10 @@ public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEnti
         }
         this.removeById(storyLevelId);
         return ResponseDTO.ok();
+    }
+
+    @Override
+    public JSONObject getRules(Long id) {
+        return null;
     }
 }

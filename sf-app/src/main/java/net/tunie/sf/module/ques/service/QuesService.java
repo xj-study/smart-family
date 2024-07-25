@@ -11,9 +11,11 @@ import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.module.ques.domain.dao.QuesDao;
 import net.tunie.sf.module.ques.domain.entity.QuesEntity;
+import net.tunie.sf.module.ques.domain.entity.QuesWordAnswerEntity;
 import net.tunie.sf.module.ques.domain.entity.QuesWordEntity;
 import net.tunie.sf.module.ques.domain.entity.QuesWordLinkEntity;
 import net.tunie.sf.module.ques.domain.form.QuesQueryForm;
+import net.tunie.sf.module.ques.domain.form.QuesSubmitForm;
 import net.tunie.sf.module.ques.domain.form.QuesWordQueryForm;
 import net.tunie.sf.module.ques.domain.vo.QuesVo;
 import net.tunie.sf.module.ques.domain.vo.QuesWordVo;
@@ -39,6 +41,9 @@ public class QuesService extends ServiceImpl<QuesDao, QuesEntity> {
 
     @Resource
     private WordService wordService;
+
+    @Resource
+    private QuesWordAnswerService quesWordAnswerService;
 
 
     public ResponseDTO<QuesVo> queryQues(QuesQueryForm quesQueryForm) {
@@ -127,5 +132,12 @@ public class QuesService extends ServiceImpl<QuesDao, QuesEntity> {
             return null;
         }
         return rulesService.getRules(refId);
+    }
+
+    public ResponseDTO<Boolean> submitQues(QuesSubmitForm quesSubmitForm) {
+        List<QuesWordAnswerEntity> quesWordAnswerEntities = SmartBeanUtil.copyList(quesSubmitForm.getAnswers(), QuesWordAnswerEntity.class);
+        this.quesWordAnswerService.saveBatch(quesWordAnswerEntities);
+        boolean result = quesWordAnswerEntities.stream().noneMatch(QuesWordAnswerEntity::getWrongFlag);
+        return ResponseDTO.ok(result);
     }
 }

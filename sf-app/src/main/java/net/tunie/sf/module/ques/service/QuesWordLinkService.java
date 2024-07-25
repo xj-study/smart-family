@@ -12,7 +12,9 @@ public class QuesWordLinkService extends ServiceImpl<QuesWordLinkDao, QuesWordLi
     public void update(QuesWordLinkEntity quesWordLinkEntity) {
         QuesWordLinkEntity entity = this.getOne(Wrappers.lambdaQuery(QuesWordLinkEntity.class)
                 .eq(QuesWordLinkEntity::getQuesWordId, quesWordLinkEntity.getQuesWordId())
+                .eq(QuesWordLinkEntity::getSort, quesWordLinkEntity.getSort())
                 .eq(QuesWordLinkEntity::getQuesId, quesWordLinkEntity.getQuesId()));
+
         if (entity == null) {
             this.save(quesWordLinkEntity);
         }

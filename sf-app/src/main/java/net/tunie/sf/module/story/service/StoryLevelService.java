@@ -1,5 +1,6 @@
 package net.tunie.sf.module.story.service;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -105,6 +106,10 @@ public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEnti
 
     @Override
     public JSONObject getRules(Long id) {
+        StoryLevelEntity entity = this.getById(id);
+        if (entity.getRefRules() != null) {
+            return JSON.parseObject(entity.getRefRules());
+        }
         return null;
     }
 }

@@ -15,6 +15,7 @@ import net.tunie.sf.module.word.service.WordService;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,6 +50,7 @@ public class QuesWordService extends ServiceImpl<QuesWordDao, QuesWordEntity> {
                 List<Long> list = wordEntities.stream().map(WordEntity::getId).toList();
                 String join = Strings.join(list, ',');
                 quesWordEntity.setOptions(join);
+                quesWordEntity.setUpdateTime(LocalDateTime.now());
                 // 更新一下
                 this.updateById(quesWordEntity);
                 quesWordEntity.setOptionList(SmartBeanUtil.copyList(wordEntities, WordVo.class));

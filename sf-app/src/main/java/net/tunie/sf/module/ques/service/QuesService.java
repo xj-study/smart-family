@@ -7,19 +7,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
-import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.module.ques.domain.dao.QuesDao;
 import net.tunie.sf.module.ques.domain.entity.QuesEntity;
 import net.tunie.sf.module.ques.domain.entity.QuesWordAnswerEntity;
 import net.tunie.sf.module.ques.domain.entity.QuesWordEntity;
 import net.tunie.sf.module.ques.domain.entity.QuesWordLinkEntity;
+import net.tunie.sf.module.ques.domain.form.QuesAddForm;
 import net.tunie.sf.module.ques.domain.form.QuesQueryForm;
 import net.tunie.sf.module.ques.domain.form.QuesSubmitForm;
 import net.tunie.sf.module.ques.domain.form.QuesWordQueryForm;
 import net.tunie.sf.module.ques.domain.vo.QuesVo;
 import net.tunie.sf.module.ques.domain.vo.QuesWordVo;
-import net.tunie.sf.module.ques.utils.QuesRulesFactory;
 import net.tunie.sf.module.word.domain.entity.WordEntity;
 import net.tunie.sf.module.word.service.WordService;
 import org.springframework.stereotype.Service;
@@ -29,9 +28,6 @@ import java.util.List;
 
 @Service
 public class QuesService extends ServiceImpl<QuesDao, QuesEntity> {
-
-    @Resource
-    private QuesRulesFactory quesRulesFactory;
 
     @Resource
     private QuesWordService quesWordService;
@@ -45,37 +41,45 @@ public class QuesService extends ServiceImpl<QuesDao, QuesEntity> {
     @Resource
     private QuesWordAnswerService quesWordAnswerService;
 
-
-    public ResponseDTO<QuesVo> queryQues(QuesQueryForm quesQueryForm) {
+    public void addOrUpdateQues(QuesAddForm quesAddForm) {
         // 1. 取得题目规则
-        JSONObject quesRules = this.getQuesRules(quesQueryForm.getType(), quesQueryForm.getId());
+        JSONObject quesRules = quesAddForm.getRules();
         if (quesRules == null) {
-            return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
+            return;
         }
-        // 2. 取得题目记录，若不存在，则创建和条记录
-        QuesEntity quesEntity = this.getByRefTypeAndRefId(quesQueryForm.getType(), quesQueryForm.getId());
-        List<QuesWordEntity> list = null;
+
+        QuesEntity quesEntity = this.getByRefTypeAndRefId(quesAddForm.getType(), quesAddForm.getId());
         if (quesEntity == null) {
             // 数据记录不存在
-            quesEntity = new QuesEntity(quesQueryForm.getType(), quesQueryForm.getId());
+            quesEntity = new QuesEntity(quesAddForm.getType(), quesAddForm.getId());
             this.save(quesEntity);
-            // 3.1 根据规则，生成对应的题目数据
-            // 目前只有单词的配置规则
-            list = this.parseRules(quesRules);
-            //ques word 关联一下 ques 方便后续快速查询
-            Long quesEntityId = quesEntity.getId();
-            list.forEach(item -> {
-                QuesWordLinkEntity quesWordLinkEntity = new QuesWordLinkEntity();
-                quesWordLinkEntity.setQuesId(quesEntityId);
-                quesWordLinkEntity.setQuesWordId(item.getId());
-                this.quesWordLinkService.update(quesWordLinkEntity);
-            });
-
         } else {
-            // 已经存在，则直接取数据记录
-            // 3.2 根据题目 id，取得关联的单词题目
-            list = quesWordService.listQuesWord(quesEntity.getId());
+            // 存在记录，则需要删除与之关联的所有记录
+            quesWordLinkService.removeByQuesId(quesEntity.getId());
         }
+
+        // 目前只有单词的配置规则
+        List<QuesWordEntity> list = this.parseRules(quesRules);
+        //ques word 关联一下 ques 方便后续快速查询
+        for (int i = 0; i < list.size(); i++) {
+            QuesWordLinkEntity quesWordLinkEntity = new QuesWordLinkEntity();
+            quesWordLinkEntity.setQuesId(quesEntity.getId());
+            quesWordLinkEntity.setQuesWordId(list.get(i).getId());
+            quesWordLinkEntity.setSort(i);
+            this.quesWordLinkService.update(quesWordLinkEntity);
+        }
+
+    }
+
+    public ResponseDTO<QuesVo> queryQues(QuesQueryForm quesQueryForm) {
+
+        QuesEntity quesEntity = this.getByRefTypeAndRefId(quesQueryForm.getType(), quesQueryForm.getId());
+        if (quesEntity == null) {
+            return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
+        }
+
+        // 取得所有题目
+        List<QuesWordEntity> list = quesWordService.listQuesWord(quesEntity.getId());
 
         // 返回数据
         QuesVo quesVo = new QuesVo();
@@ -124,14 +128,6 @@ public class QuesService extends ServiceImpl<QuesDao, QuesEntity> {
         return this.getOne(Wrappers.lambdaQuery(QuesEntity.class)
                 .eq(QuesEntity::getRefType, refType)
                 .eq(QuesEntity::getRefId, refId));
-    }
-
-    private JSONObject getQuesRules(Integer refType, Long refId) {
-        RulesService rulesService = quesRulesFactory.getService(refType);
-        if (rulesService == null) {
-            return null;
-        }
-        return rulesService.getRules(refId);
     }
 
     public ResponseDTO<Boolean> submitQues(QuesSubmitForm quesSubmitForm) {

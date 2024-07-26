@@ -13,7 +13,7 @@ public class QuesWordLinkEntity extends BasicEntity {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private Long sort;
+    private Integer sort;
 
     private Long quesId;
 

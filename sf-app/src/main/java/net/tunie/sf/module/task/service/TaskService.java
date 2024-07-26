@@ -8,6 +8,10 @@ import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
+import net.tunie.sf.constant.RuleTypeConst;
+import net.tunie.sf.module.ques.constant.QuesTypeConst;
+import net.tunie.sf.module.ques.domain.form.QuesAddForm;
+import net.tunie.sf.module.ques.service.QuesService;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
 import net.tunie.sf.module.task.domain.entity.TaskEntity;
 import net.tunie.sf.module.task.domain.entity.TaskIntegralEntity;
@@ -19,10 +23,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TaskService extends ServiceImpl<TaskDao, TaskEntity> implements RulesService {
+public class TaskService extends ServiceImpl<TaskDao, TaskEntity> implements RulesService<TaskEntity> {
 
     @Resource
     private TaskIntegralService taskIntegralService;
+
+    @Resource
+    private QuesService quesService;
 
     public ResponseDTO<Long> addTask(TaskAddForm taskAddForm) {
         TaskEntity taskEntity = SmartBeanUtil.copy(taskAddForm, TaskEntity.class);
@@ -32,6 +39,8 @@ public class TaskService extends ServiceImpl<TaskDao, TaskEntity> implements Rul
         taskIntegralEntity.setTaskId(taskEntity.getId());
         taskIntegralEntity.setIntegral(taskAddForm.getIntegral());
         taskIntegralService.save(taskIntegralEntity);
+
+        this.addOrUpdateQuesByRule(taskEntity);
 
         return ResponseDTO.ok(taskEntity.getId());
     }
@@ -63,6 +72,8 @@ public class TaskService extends ServiceImpl<TaskDao, TaskEntity> implements Rul
             this.taskIntegralService.updateById(taskIntegralEntity);
         }
 
+        this.addOrUpdateQuesByRule(updateTaskEntity);
+
         return ResponseDTO.ok();
     }
 
@@ -77,11 +88,22 @@ public class TaskService extends ServiceImpl<TaskDao, TaskEntity> implements Rul
     }
 
     @Override
-    public JSONObject getRules(Long id) {
-        TaskEntity entity = this.getById(id);
-        if (entity.getRules() != null) {
-            return JSON.parseObject(entity.getRules());
+    public JSONObject getRules(TaskEntity taskEntity) {
+        if (taskEntity.getRules() != null) {
+            return JSON.parseObject(taskEntity.getRules());
         }
         return null;
+    }
+
+    @Override
+    public void addOrUpdateQuesByRule(TaskEntity taskEntity) {
+        if (RuleTypeConst.needQuesUpdate(taskEntity.getTaskType())) {
+            QuesAddForm quesAddForm = new QuesAddForm();
+            quesAddForm.setId(taskEntity.getId());
+            quesAddForm.setType(QuesTypeConst.TASK);
+            quesAddForm.setRules(this.getRules(taskEntity));
+
+            quesService.addOrUpdateQues(quesAddForm);
+        }
     }
 }

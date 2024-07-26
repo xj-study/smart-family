@@ -5,10 +5,15 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
+import net.tunie.sf.constant.RuleTypeConst;
+import net.tunie.sf.module.ques.constant.QuesTypeConst;
+import net.tunie.sf.module.ques.domain.form.QuesAddForm;
+import net.tunie.sf.module.ques.service.QuesService;
 import net.tunie.sf.module.story.domain.dao.StoryLevelDao;
 import net.tunie.sf.module.story.domain.entity.StoryLevelEntity;
 import net.tunie.sf.module.story.domain.form.StoryLevelAddForm;
@@ -19,7 +24,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEntity> implements RulesService {
+public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEntity> implements RulesService<StoryLevelEntity> {
+
+    @Resource
+    private QuesService quesService;
 
     public List<StoryLevelEntity> getStoryLevelByOrder(StoryLevelEntity storyLevelEntity) {
         if (storyLevelEntity == null) return null;
@@ -105,11 +113,21 @@ public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEnti
     }
 
     @Override
-    public JSONObject getRules(Long id) {
-        StoryLevelEntity entity = this.getById(id);
+    public JSONObject getRules(StoryLevelEntity entity) {
         if (entity.getRefRules() != null) {
             return JSON.parseObject(entity.getRefRules());
         }
         return null;
+    }
+
+    @Override
+    public void addOrUpdateQuesByRule(StoryLevelEntity storyLevelEntity) {
+        if (RuleTypeConst.needQuesUpdate(storyLevelEntity.getRefType())) {
+            QuesAddForm quesAddForm = new QuesAddForm();
+            quesAddForm.setId(storyLevelEntity.getId());
+            quesAddForm.setType(QuesTypeConst.STORY_LEVEL);
+            quesAddForm.setRules(this.getRules(storyLevelEntity));
+            quesService.addOrUpdateQues(quesAddForm);
+        }
     }
 }

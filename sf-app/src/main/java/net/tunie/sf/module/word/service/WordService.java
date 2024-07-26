@@ -16,6 +16,7 @@ import net.tunie.sf.module.word.domain.entity.WordEntity;
 import net.tunie.sf.module.word.domain.form.WordAddForm;
 import net.tunie.sf.module.word.domain.form.WordQueryForm;
 import net.tunie.sf.module.word.domain.form.WordUpdateForm;
+import net.tunie.sf.module.word.domain.vo.WordStatVo;
 import net.tunie.sf.module.word.domain.vo.WordVo;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +32,10 @@ public class WordService extends ServiceImpl<WordDao, WordEntity> {
         Page<WordEntity> page = SmartPageUtil.convert2PageParam(wordQueryForm);
 
         LambdaQueryWrapper<WordEntity> lambdaQueryWrapper = Wrappers.lambdaQuery(WordEntity.class);
-        if (StringUtils.isNotBlank(wordQueryForm.getKeyword())) {
-            lambdaQueryWrapper.like(WordEntity::getEnValue, wordQueryForm.getKeyword());
+        boolean hasKeyword = StringUtils.isNotBlank(wordQueryForm.getKeyword());
+        lambdaQueryWrapper.like(hasKeyword, WordEntity::getEnValue, wordQueryForm.getKeyword());
+        if (!hasKeyword) {
+            lambdaQueryWrapper.eq(wordQueryForm.getLevel() != null, WordEntity::getLevel, wordQueryForm.getLevel());
         }
         List<WordEntity> list = this.list(page, lambdaQueryWrapper);
 
@@ -101,5 +104,39 @@ public class WordService extends ServiceImpl<WordDao, WordEntity> {
         long idx = random.nextLong(count);
         List<WordEntity> list = this.list(new Page<>(idx + 1, 1));
         return list.get(0);
+    }
+
+    public ResponseDTO<String> removeWord(Long id) {
+        this.removeById(id);
+        return ResponseDTO.ok();
+    }
+
+    /**
+     * 统计单词各个难度的数量
+     */
+    public ResponseDTO<List<Integer>> queryStat() {
+        int size = 5;
+        List<WordStatVo> wordStatVos = this.baseMapper.statLevels();
+        List<Integer> list = new ArrayList<>(size);
+
+        int voIndex = 0;
+        for (int i = 0; i < size; i++) {
+            if (voIndex >= wordStatVos.size()) break;
+            WordStatVo wordStatVo = wordStatVos.get(voIndex);
+            int count = 0;
+            if (wordStatVo.getLevel() == i) {
+                count = wordStatVo.getCount();
+                voIndex++;
+            }
+            list.add(count);
+        }
+
+        if (list.size() < size) {
+            for (int i = list.size(); i < size; i++) {
+                list.add(0);
+            }
+        }
+
+        return ResponseDTO.ok(list);
     }
 }

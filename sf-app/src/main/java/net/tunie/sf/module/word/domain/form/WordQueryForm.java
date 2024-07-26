@@ -6,4 +6,6 @@ import net.tunie.sf.common.domain.PageParam;
 @Data
 public class WordQueryForm extends PageParam {
     private String keyword;
+
+    private Integer level;
 }

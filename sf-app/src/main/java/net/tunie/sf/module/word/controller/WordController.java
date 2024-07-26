@@ -8,9 +8,9 @@ import net.tunie.sf.module.word.domain.form.WordQueryForm;
 import net.tunie.sf.module.word.domain.form.WordUpdateForm;
 import net.tunie.sf.module.word.domain.vo.WordVo;
 import net.tunie.sf.module.word.service.WordService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class WordController {
@@ -22,6 +22,11 @@ public class WordController {
         return wordService.queryWordPage(wordQueryForm);
     }
 
+    @GetMapping("/word/stat/query")
+    public ResponseDTO<List<Integer>> query(){
+        return wordService.queryStat();
+    }
+
     @PostMapping("/word/add")
     public ResponseDTO<Long> query(@RequestBody WordAddForm wordAddForm) {
         return wordService.addWord(wordAddForm);
@@ -31,6 +36,11 @@ public class WordController {
     @PostMapping("/word/update")
     public ResponseDTO<String> update(@RequestBody WordUpdateForm wordUpdateForm) {
         return wordService.updateWord(wordUpdateForm);
+    }
+
+    @GetMapping("/word/remove/{id}")
+    public ResponseDTO<String> remove(@PathVariable Long id) {
+        return wordService.removeWord(id);
     }
 
 }

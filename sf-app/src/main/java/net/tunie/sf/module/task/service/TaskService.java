@@ -1,15 +1,18 @@
 package net.tunie.sf.module.task.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
+import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
+import net.tunie.sf.constant.RuleTypeConst;
+import net.tunie.sf.module.ques.constant.QuesTypeConst;
+import net.tunie.sf.module.ques.domain.form.QuesQueryForm;
+import net.tunie.sf.module.ques.service.QuesService;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
-import net.tunie.sf.module.task.domain.dao.TaskIntegralDao;
 import net.tunie.sf.module.task.domain.entity.TaskEntity;
 import net.tunie.sf.module.task.domain.entity.TaskIntegralEntity;
 import net.tunie.sf.module.task.domain.form.TaskAddForm;
@@ -20,11 +23,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TaskService extends ServiceImpl<TaskDao, TaskEntity> {
-
+public class TaskService extends ServiceImpl<TaskDao, TaskEntity> implements RulesService<TaskEntity> {
 
     @Resource
     private TaskIntegralService taskIntegralService;
+
+    @Resource
+    private QuesService quesService;
 
     public ResponseDTO<Long> addTask(TaskAddForm taskAddForm) {
         TaskEntity taskEntity = SmartBeanUtil.copy(taskAddForm, TaskEntity.class);
@@ -34,6 +39,8 @@ public class TaskService extends ServiceImpl<TaskDao, TaskEntity> {
         taskIntegralEntity.setTaskId(taskEntity.getId());
         taskIntegralEntity.setIntegral(taskAddForm.getIntegral());
         taskIntegralService.save(taskIntegralEntity);
+
+        this.addOrUpdateQuesByRule(taskEntity);
 
         return ResponseDTO.ok(taskEntity.getId());
     }
@@ -65,6 +72,8 @@ public class TaskService extends ServiceImpl<TaskDao, TaskEntity> {
             this.taskIntegralService.updateById(taskIntegralEntity);
         }
 
+        this.addOrUpdateQuesByRule(updateTaskEntity);
+
         return ResponseDTO.ok();
     }
 
@@ -76,5 +85,31 @@ public class TaskService extends ServiceImpl<TaskDao, TaskEntity> {
         this.removeById(id);
 
         return ResponseDTO.ok();
+    }
+
+    @Override
+    public JSONObject getRules(TaskEntity taskEntity) {
+        if (taskEntity.getRules() != null) {
+            return JSON.parseObject(taskEntity.getRules());
+        }
+        return null;
+    }
+
+    @Override
+    public JSONObject getRules(Long id) {
+        TaskEntity entity = this.getById(id);
+        return getRules(entity);
+    }
+
+    @Override
+    public void addOrUpdateQuesByRule(TaskEntity taskEntity) {
+        if (RuleTypeConst.needQuesUpdate(taskEntity.getTaskType())) {
+            QuesQueryForm quesQueryForm = new QuesQueryForm();
+            quesQueryForm.setId(taskEntity.getId());
+            quesQueryForm.setType(QuesTypeConst.TASK);
+            quesQueryForm.setRules(taskEntity.getRules());
+
+            quesService.addOrUpdateQues(quesQueryForm);
+        }
     }
 }

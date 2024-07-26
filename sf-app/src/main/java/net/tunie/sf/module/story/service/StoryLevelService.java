@@ -1,24 +1,33 @@
 package net.tunie.sf.module.story.service;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
+import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
+import net.tunie.sf.constant.RuleTypeConst;
+import net.tunie.sf.module.ques.constant.QuesTypeConst;
+import net.tunie.sf.module.ques.domain.form.QuesQueryForm;
+import net.tunie.sf.module.ques.service.QuesService;
 import net.tunie.sf.module.story.domain.dao.StoryLevelDao;
-import net.tunie.sf.module.story.domain.entity.StoryEntity;
 import net.tunie.sf.module.story.domain.entity.StoryLevelEntity;
-import net.tunie.sf.module.story.domain.form.*;
+import net.tunie.sf.module.story.domain.form.StoryLevelAddForm;
+import net.tunie.sf.module.story.domain.form.StoryLevelUpdateForm;
 import net.tunie.sf.module.story.domain.vo.StoryLevelVo;
-import net.tunie.sf.module.story.domain.vo.StoryVo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEntity> {
+public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEntity> implements RulesService<StoryLevelEntity> {
+
+    @Resource
+    private QuesService quesService;
 
     public List<StoryLevelEntity> getStoryLevelByOrder(StoryLevelEntity storyLevelEntity) {
         if (storyLevelEntity == null) return null;
@@ -101,5 +110,30 @@ public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEnti
         }
         this.removeById(storyLevelId);
         return ResponseDTO.ok();
+    }
+
+    @Override
+    public JSONObject getRules(StoryLevelEntity entity) {
+        if (entity.getRefRules() != null) {
+            return JSON.parseObject(entity.getRefRules());
+        }
+        return null;
+    }
+
+    @Override
+    public JSONObject getRules(Long id) {
+        StoryLevelEntity storyLevelEntity = this.getById(id);
+        return getRules(storyLevelEntity);
+    }
+
+    @Override
+    public void addOrUpdateQuesByRule(StoryLevelEntity storyLevelEntity) {
+        if (RuleTypeConst.needQuesUpdate(storyLevelEntity.getRefType())) {
+            QuesQueryForm quesQueryForm = new QuesQueryForm();
+            quesQueryForm.setId(storyLevelEntity.getId());
+            quesQueryForm.setType(QuesTypeConst.STORY_LEVEL);
+            quesQueryForm.setRules(storyLevelEntity.getRefRules());
+            quesService.addOrUpdateQues(quesQueryForm);
+        }
     }
 }

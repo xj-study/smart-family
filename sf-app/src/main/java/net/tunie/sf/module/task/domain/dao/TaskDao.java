@@ -14,6 +14,6 @@ import java.util.List;
 @Component
 public interface TaskDao extends BaseMapper<TaskEntity> {
 
-    @Select("SELECT * FROM t_task T LEFT JOIN t_task_integral I ON T.id = I.task_id WHERE T.user_id = #{userId}")
+    @Select("SELECT * FROM t_task T LEFT JOIN t_task_integral I ON T.id = I.task_id WHERE T.user_id = #{userId} order by T.create_time")
     List<TaskVo> getTaskList(@Param("userId") Long requestUserId);
 }

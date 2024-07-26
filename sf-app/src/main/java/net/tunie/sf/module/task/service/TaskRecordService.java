@@ -11,7 +11,7 @@ import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.common.utils.SmartUserUtil;
 import net.tunie.sf.constant.TaskStatusConst;
 import net.tunie.sf.constant.RecordTypeConst;
-import net.tunie.sf.constant.TaskTypeConst;
+import net.tunie.sf.constant.RuleTypeConst;
 import net.tunie.sf.module.login.domain.RequestUser;
 import net.tunie.sf.module.task.constant.TaskDateTypeQueryConst;
 import net.tunie.sf.module.task.domain.dao.TaskRecordDao;
@@ -71,7 +71,7 @@ public class TaskRecordService extends ServiceImpl<TaskRecordDao, TaskRecordEnti
 
     // 检查一下任务更新的状态
     private Integer getTaskUpdateStatus(TaskRecordEntity taskRecordEntity, TaskEntity taskEntity, Integer status) {
-        if (taskEntity.getTaskType() == TaskTypeConst.COMMON) {
+        if (taskEntity.getTaskType() == RuleTypeConst.COMMON) {
             if (status == TaskStatusConst.COMPLETE && taskRecordEntity.getStatus() == TaskStatusConst.INIT && taskEntity.getVerifyFlag()) {
                 return TaskStatusConst.WAIT_VERIFY;
             }

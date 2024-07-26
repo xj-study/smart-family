@@ -1,5 +1,6 @@
 package net.tunie.sf.module.ques.service;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -13,7 +14,6 @@ import net.tunie.sf.module.ques.domain.entity.QuesEntity;
 import net.tunie.sf.module.ques.domain.entity.QuesWordAnswerEntity;
 import net.tunie.sf.module.ques.domain.entity.QuesWordEntity;
 import net.tunie.sf.module.ques.domain.entity.QuesWordLinkEntity;
-import net.tunie.sf.module.ques.domain.form.QuesAddForm;
 import net.tunie.sf.module.ques.domain.form.QuesQueryForm;
 import net.tunie.sf.module.ques.domain.form.QuesSubmitForm;
 import net.tunie.sf.module.ques.domain.form.QuesWordQueryForm;
@@ -41,17 +41,19 @@ public class QuesService extends ServiceImpl<QuesDao, QuesEntity> {
     @Resource
     private QuesWordAnswerService quesWordAnswerService;
 
-    public void addOrUpdateQues(QuesAddForm quesAddForm) {
+
+    public QuesVo addOrUpdateQues(QuesQueryForm quesQueryForm) {
         // 1. 取得题目规则
-        JSONObject quesRules = quesAddForm.getRules();
+        String rules = quesQueryForm.getRules();
+        JSONObject quesRules = JSON.parseObject(rules);
         if (quesRules == null) {
-            return;
+            return null;
         }
 
-        QuesEntity quesEntity = this.getByRefTypeAndRefId(quesAddForm.getType(), quesAddForm.getId());
+        QuesEntity quesEntity = this.getByRefTypeAndRefId(quesQueryForm.getType(), quesQueryForm.getId());
         if (quesEntity == null) {
             // 数据记录不存在
-            quesEntity = new QuesEntity(quesAddForm.getType(), quesAddForm.getId());
+            quesEntity = new QuesEntity(quesQueryForm.getType(), quesQueryForm.getId());
             this.save(quesEntity);
         } else {
             // 存在记录，则需要删除与之关联的所有记录
@@ -69,12 +71,17 @@ public class QuesService extends ServiceImpl<QuesDao, QuesEntity> {
             this.quesWordLinkService.update(quesWordLinkEntity);
         }
 
+        return this.parseQuesVo(quesEntity.getId(), list);
     }
 
     public ResponseDTO<QuesVo> queryQues(QuesQueryForm quesQueryForm) {
 
         QuesEntity quesEntity = this.getByRefTypeAndRefId(quesQueryForm.getType(), quesQueryForm.getId());
         if (quesEntity == null) {
+
+            QuesVo quesVo = this.addOrUpdateQues(quesQueryForm);
+            if (quesVo != null) return ResponseDTO.ok(quesVo);
+
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
 
@@ -82,13 +89,20 @@ public class QuesService extends ServiceImpl<QuesDao, QuesEntity> {
         List<QuesWordEntity> list = quesWordService.listQuesWord(quesEntity.getId());
 
         // 返回数据
+        QuesVo quesVo = this.parseQuesVo(quesEntity.getId(), list);
+        return ResponseDTO.ok(quesVo);
+    }
+
+    private QuesVo parseQuesVo(Long id, List<QuesWordEntity> list) {
+        // 返回数据
         QuesVo quesVo = new QuesVo();
-        quesVo.setId(quesEntity.getId());
+        quesVo.setId(id);
 
         List<QuesWordVo> quesWordVos = SmartBeanUtil.copyList(list, QuesWordVo.class);
         quesWordVos.forEach(this.quesWordService::parseQuesWord);
         quesVo.setList(quesWordVos);
-        return ResponseDTO.ok(quesVo);
+
+        return quesVo;
     }
 
     private List<QuesWordEntity> parseRules(JSONObject quesRules) {
@@ -135,5 +149,14 @@ public class QuesService extends ServiceImpl<QuesDao, QuesEntity> {
         this.quesWordAnswerService.saveBatch(quesWordAnswerEntities);
         boolean result = quesWordAnswerEntities.stream().noneMatch(QuesWordAnswerEntity::getWrongFlag);
         return ResponseDTO.ok(result);
+    }
+
+    public ResponseDTO<String> removeWord(Long wordId) {
+        this.wordService.removeById(wordId);
+
+        // 清除关联的题目
+        this.baseMapper.updateDisableFlagByWordId(wordId);
+
+        return ResponseDTO.ok();
     }
 }

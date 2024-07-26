@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.tunie.sf.module.ques.domain.dao.QuesDao">
+
+    <update id="updateDisableFlagByWordId">
+        update t_ques
+        set disable_flag = 1
+        where id in (select ques_id
+                     from t_ques_word_link
+                     where ques_word_id in (select w.id
+                                            from t_ques_word W
+                                            where W.word_id = #{wordId})
+                     group by ques_id)
+
+    </update>
+</mapper>

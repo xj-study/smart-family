@@ -10,7 +10,7 @@ import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.constant.RuleTypeConst;
 import net.tunie.sf.module.ques.constant.QuesTypeConst;
-import net.tunie.sf.module.ques.domain.form.QuesAddForm;
+import net.tunie.sf.module.ques.domain.form.QuesQueryForm;
 import net.tunie.sf.module.ques.service.QuesService;
 import net.tunie.sf.module.task.domain.dao.TaskDao;
 import net.tunie.sf.module.task.domain.entity.TaskEntity;
@@ -96,14 +96,20 @@ public class TaskService extends ServiceImpl<TaskDao, TaskEntity> implements Rul
     }
 
     @Override
+    public JSONObject getRules(Long id) {
+        TaskEntity entity = this.getById(id);
+        return getRules(entity);
+    }
+
+    @Override
     public void addOrUpdateQuesByRule(TaskEntity taskEntity) {
         if (RuleTypeConst.needQuesUpdate(taskEntity.getTaskType())) {
-            QuesAddForm quesAddForm = new QuesAddForm();
-            quesAddForm.setId(taskEntity.getId());
-            quesAddForm.setType(QuesTypeConst.TASK);
-            quesAddForm.setRules(this.getRules(taskEntity));
+            QuesQueryForm quesQueryForm = new QuesQueryForm();
+            quesQueryForm.setId(taskEntity.getId());
+            quesQueryForm.setType(QuesTypeConst.TASK);
+            quesQueryForm.setRules(taskEntity.getRules());
 
-            quesService.addOrUpdateQues(quesAddForm);
+            quesService.addOrUpdateQues(quesQueryForm);
         }
     }
 }

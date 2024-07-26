@@ -27,7 +27,6 @@ import java.util.Random;
 @Service
 public class WordService extends ServiceImpl<WordDao, WordEntity> {
 
-
     public ResponseDTO<PageDTO<WordVo>> queryWordPage(WordQueryForm wordQueryForm) {
         Page<WordEntity> page = SmartPageUtil.convert2PageParam(wordQueryForm);
 
@@ -104,11 +103,6 @@ public class WordService extends ServiceImpl<WordDao, WordEntity> {
         long idx = random.nextLong(count);
         List<WordEntity> list = this.list(new Page<>(idx + 1, 1));
         return list.get(0);
-    }
-
-    public ResponseDTO<String> removeWord(Long id) {
-        this.removeById(id);
-        return ResponseDTO.ok();
     }
 
     /**

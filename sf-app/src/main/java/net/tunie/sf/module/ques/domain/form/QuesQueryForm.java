@@ -8,4 +8,6 @@ public class QuesQueryForm {
     private Long id;
 
     private Integer type;
+
+    private String rules;
 }

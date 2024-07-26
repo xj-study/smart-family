@@ -38,9 +38,5 @@ public class WordController {
         return wordService.updateWord(wordUpdateForm);
     }
 
-    @GetMapping("/word/remove/{id}")
-    public ResponseDTO<String> remove(@PathVariable Long id) {
-        return wordService.removeWord(id);
-    }
 
 }

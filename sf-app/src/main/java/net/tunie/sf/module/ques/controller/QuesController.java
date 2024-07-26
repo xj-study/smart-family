@@ -7,9 +7,7 @@ import net.tunie.sf.module.ques.domain.form.QuesQueryForm;
 import net.tunie.sf.module.ques.domain.form.QuesSubmitForm;
 import net.tunie.sf.module.ques.domain.vo.QuesVo;
 import net.tunie.sf.module.ques.service.QuesService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class QuesController {
@@ -28,4 +26,10 @@ public class QuesController {
         quesSubmitForm.getAnswers().forEach(item -> item.setUserId(userId));
         return quesService.submitQues(quesSubmitForm);
     }
+
+    @GetMapping("/word/remove/{id}")
+    public ResponseDTO<String> remove(@PathVariable Long id) {
+        return quesService.removeWord(id);
+    }
+
 }

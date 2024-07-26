@@ -12,7 +12,7 @@ import net.tunie.sf.common.service.RulesService;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.constant.RuleTypeConst;
 import net.tunie.sf.module.ques.constant.QuesTypeConst;
-import net.tunie.sf.module.ques.domain.form.QuesAddForm;
+import net.tunie.sf.module.ques.domain.form.QuesQueryForm;
 import net.tunie.sf.module.ques.service.QuesService;
 import net.tunie.sf.module.story.domain.dao.StoryLevelDao;
 import net.tunie.sf.module.story.domain.entity.StoryLevelEntity;
@@ -121,13 +121,19 @@ public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEnti
     }
 
     @Override
+    public JSONObject getRules(Long id) {
+        StoryLevelEntity storyLevelEntity = this.getById(id);
+        return getRules(storyLevelEntity);
+    }
+
+    @Override
     public void addOrUpdateQuesByRule(StoryLevelEntity storyLevelEntity) {
         if (RuleTypeConst.needQuesUpdate(storyLevelEntity.getRefType())) {
-            QuesAddForm quesAddForm = new QuesAddForm();
-            quesAddForm.setId(storyLevelEntity.getId());
-            quesAddForm.setType(QuesTypeConst.STORY_LEVEL);
-            quesAddForm.setRules(this.getRules(storyLevelEntity));
-            quesService.addOrUpdateQues(quesAddForm);
+            QuesQueryForm quesQueryForm = new QuesQueryForm();
+            quesQueryForm.setId(storyLevelEntity.getId());
+            quesQueryForm.setType(QuesTypeConst.STORY_LEVEL);
+            quesQueryForm.setRules(storyLevelEntity.getRefRules());
+            quesService.addOrUpdateQues(quesQueryForm);
         }
     }
 }

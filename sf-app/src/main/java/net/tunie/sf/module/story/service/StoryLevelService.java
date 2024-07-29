@@ -59,6 +59,8 @@ public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEnti
 
         this.save(storyLevelEntity);
 
+        this.addOrUpdateQuesByRule(storyLevelEntity);
+
         return ResponseDTO.ok(storyLevelEntity.getId());
     }
 
@@ -72,6 +74,8 @@ public class StoryLevelService extends ServiceImpl<StoryLevelDao, StoryLevelEnti
 
         this.updateStoreLevelOrder(storyLevelEntity);
         this.updateById(storyLevelEntity);
+
+        this.addOrUpdateQuesByRule(storyLevelEntity);
         return ResponseDTO.ok();
     }
 

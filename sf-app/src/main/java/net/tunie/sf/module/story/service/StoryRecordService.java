@@ -11,8 +11,10 @@ import net.tunie.sf.common.utils.SmartUserUtil;
 import net.tunie.sf.config.SfAppStoryConfig;
 import net.tunie.sf.constant.RecordTypeConst;
 import net.tunie.sf.module.login.domain.RequestUser;
+import net.tunie.sf.module.story.constant.StoryLevelStatusConst;
 import net.tunie.sf.module.story.constant.StoryRecordStatusConst;
 import net.tunie.sf.module.story.constant.StoryStatusConst;
+import net.tunie.sf.module.story.constant.StoryTypeConst;
 import net.tunie.sf.module.story.domain.dao.StoryRecordDao;
 import net.tunie.sf.module.story.domain.entity.StoryEntity;
 import net.tunie.sf.module.story.domain.entity.StoryLevelEntity;
@@ -66,6 +68,10 @@ public class StoryRecordService extends ServiceImpl<StoryRecordDao, StoryRecordE
 
         List<StoryLevelVo> levels;
 
+        boolean simpleFlag = storyRecordVo.getType() == StoryTypeConst.SIMPLE;
+        long size = simpleFlag ? -1 : sfAppStoryConfig.getPreLevel();
+        int index = -1;
+
         if (storyRecordVo.getId() == null) {
             // 首次访问
             StoryRecordEntity storyRecordEntity = new StoryRecordEntity();
@@ -75,26 +81,36 @@ public class StoryRecordService extends ServiceImpl<StoryRecordDao, StoryRecordE
             this.save(storyRecordEntity);
 
             storyRecordVo.setId(storyRecordEntity.getId());
-            levels = storyLevelService.queryStoryLevelList(storyId, sfAppStoryConfig.getPreLevel()).getData();
+            levels = storyLevelService.queryStoryLevelList(storyId, size).getData();
         } else {
             if (storyRecordVo.getLevelId() == -1) {
-                levels = storyLevelService.queryStoryLevelList(storyId, sfAppStoryConfig.getPreLevel()).getData();
+                levels = storyLevelService.queryStoryLevelList(storyId, size).getData();
             } else {
-                int index = -1;
                 if (storyRecordVo.getLevelIndex() == null) {
                     levels = storyLevelService.queryStoryLevelList(storyId).getData();
                     index = SmartListUtil.findIndex(levels, it -> it.getId().equals(storyRecordVo.getLevelId()));
-                    levels = levels.stream().limit(index + 1 + sfAppStoryConfig.getPreLevel()).collect(Collectors.toList());
+                    if (!simpleFlag) {
+                        levels = levels.stream().limit(index + 1 + sfAppStoryConfig.getPreLevel()).collect(Collectors.toList());
+                    }
                 } else {
                     index = storyRecordVo.getLevelIndex();
-                    levels = storyLevelService.queryStoryLevelList(storyId, index + 1 + sfAppStoryConfig.getPreLevel()).getData();
-                }
-
-                for (int i = 0; i < index + 1; i++) {
-                    levels.get(i).setPass(true);
+                    size = simpleFlag ? -1 : index + 1 + sfAppStoryConfig.getPreLevel();
+                    levels = storyLevelService.queryStoryLevelList(storyId, size).getData();
                 }
             }
         }
+
+        if (storyRecordVo.getStatus() != StoryRecordStatusConst.NOT_ACTIVE) {
+            // 设置关卡的状态
+            for (int i = 0; i < index + 1; i++) {
+                levels.get(i).setStatus(StoryLevelStatusConst.PASS);
+            }
+
+            if (index + 1 < levels.size()) {
+                levels.get(index + 1).setStatus(StoryLevelStatusConst.ACTIVE);
+            }
+        }
+
         storyRecordVo.setLevels(levels);
         return ResponseDTO.ok(storyRecordVo);
     }

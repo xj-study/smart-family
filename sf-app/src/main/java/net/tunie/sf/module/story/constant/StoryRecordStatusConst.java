@@ -6,15 +6,15 @@ public class StoryRecordStatusConst {
     /**
      * 未激活
      */
-    public static final Integer NOT_ACTIVE = 0;
+    public static final int NOT_ACTIVE = 0;
 
     /**
      * 已激活
      */
-    public static final Integer ACTIVE = 1;
+    public static final int ACTIVE = 1;
 
     /**
      * 通关
      */
-    public static final Integer PASS_ALL = 2;
+    public static final int PASS_ALL = 2;
 }

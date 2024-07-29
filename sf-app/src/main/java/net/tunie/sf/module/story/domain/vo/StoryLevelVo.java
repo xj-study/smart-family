@@ -1,10 +1,8 @@
 package net.tunie.sf.module.story.domain.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
+import net.tunie.sf.module.story.constant.StoryLevelStatusConst;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -28,6 +26,6 @@ public class StoryLevelVo {
 
     private LocalDateTime createTime;
 
-    // 状态 true(通关)
-    private Boolean pass;
+    private Integer status = StoryLevelStatusConst.LOCK;
+
 }

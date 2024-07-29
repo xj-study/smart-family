@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="net.tunie.sf.module.story.domain.dao.StoryRecordDao">
     <select id="selectStoryRecordList" resultType="net.tunie.sf.module.story.domain.vo.StoryRecordVo">
-        select S.id as story_id, S.title, S.content, S.cost_amount, S.cost_type, SR.id, SR.status, SR.pass_count, SR.level_id
+        select S.id as story_id, S.title, S.content, S.cost_amount, S.cost_type, S.type, SR.id, SR.status,
+        SR.pass_count, SR.level_id
         from t_story S
         left join t_story_record SR on S.id = SR.story_id and SR.user_id = #{userId}
         <where>
@@ -17,7 +18,7 @@
     </select>
 
     <select id="selectStoryRecord" resultType="net.tunie.sf.module.story.domain.vo.StoryRecordVo">
-        select S.id as story_id, S.title, S.content, S.cost_amount, S.cost_type, SR.id, coalesce(SR.status, 0) as status, SR.pass_count, SR.level_id, SR.level_index
+        select S.id as story_id, S.title, S.content, S.cost_amount, S.cost_type, S.type, SR.id, coalesce(SR.status, 0) as status, SR.pass_count, SR.level_id, SR.level_index
         from t_story S
         left join t_story_record SR on S.id = SR.story_id and SR.user_id = #{userId}
         where S.id = #{storyId}

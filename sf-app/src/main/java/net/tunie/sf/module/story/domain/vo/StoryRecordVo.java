@@ -2,7 +2,6 @@ package net.tunie.sf.module.story.domain.vo;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -19,6 +18,8 @@ public class StoryRecordVo {
     private Integer costType;
 
     private Integer status;
+
+    private Integer type;
 
     private Long storyId;
 

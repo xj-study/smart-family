@@ -25,14 +25,14 @@ public class StoryService extends ServiceImpl<StoryDao, StoryEntity> {
         return ResponseDTO.ok(storyEntity.getId());
     }
 
-    public ResponseDTO<String> updateStory(StoryUpdateForm storyUpdateForm) {
+    public ResponseDTO<Integer> updateStory(StoryUpdateForm storyUpdateForm) {
         StoryEntity storyEntity = this.getById(storyUpdateForm.getId());
         if (storyEntity == null) {
             return ResponseDTO.error(UserErrorCode.DATA_NOT_EXIST);
         }
         storyEntity = SmartBeanUtil.copy(storyUpdateForm, StoryEntity.class);
         this.updateById(storyEntity);
-        return ResponseDTO.ok();
+        return ResponseDTO.ok(storyEntity.getStatus());
     }
 
     public ResponseDTO<List<StoryVo>> queryStoryList(StoryQueryForm storyQueryForm) {

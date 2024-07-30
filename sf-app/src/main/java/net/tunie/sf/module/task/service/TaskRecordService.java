@@ -24,6 +24,7 @@ import net.tunie.sf.module.task.domain.vo.TaskJsonVo;
 import net.tunie.sf.module.task.domain.vo.TaskRecordVo;
 import net.tunie.sf.module.user.domain.form.UserIntegralUpdateForm;
 import net.tunie.sf.module.user.service.UserIntegralService;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -51,7 +52,8 @@ public class TaskRecordService extends ServiceImpl<TaskRecordDao, TaskRecordEnti
         return taskDate;
     }
 
-    public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(RequestUser requestUser, TaskRecordQueryForm taskRecordQueryForm) {
+    public ResponseDTO<List<TaskRecordVo>> queryDailyTaskRecord(
+            RequestUser requestUser, TaskRecordQueryForm taskRecordQueryForm) {
 
         Long taskUserId = requestUser.getUserId();
         if (SmartUserUtil.getUserChildFlag(requestUser.getType())) {
@@ -65,7 +67,12 @@ public class TaskRecordService extends ServiceImpl<TaskRecordDao, TaskRecordEnti
 
         LocalDate taskDate = this.getTaskDate(taskRecordQueryForm.getDate());
 
-        List<TaskRecordVo> taskRecordVos = this.baseMapper.queryDailyTaskRecord(taskUserId, recordUserId, taskDate, taskRecordQueryForm.getStatus());
+        String keyword = taskRecordQueryForm.getKeyword();
+        if (Strings.isNotBlank(keyword)) {
+            keyword = "%" + keyword + "%";
+        }
+        List<TaskRecordVo> taskRecordVos = this.baseMapper.queryDailyTaskRecord(
+                taskUserId, recordUserId, taskDate, taskRecordQueryForm.getStatus(), keyword);
         return ResponseDTO.ok(taskRecordVos);
     }
 

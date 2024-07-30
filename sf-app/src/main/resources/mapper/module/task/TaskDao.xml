@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.tunie.sf.module.task.domain.dao.TaskDao">
+    <select id="getTaskList" resultType="net.tunie.sf.module.task.domain.vo.TaskVo">
+
+        SELECT *
+        FROM t_task T
+                 LEFT JOIN t_task_integral I ON T.id = I.task_id
+        <where>
+            T.user_id = #{userId}
+            <if test="keyword != null">
+                AND T.title LIKE #{keyword}
+            </if>
+        </where>
+        order by T.create_time
+    </select>
+</mapper>

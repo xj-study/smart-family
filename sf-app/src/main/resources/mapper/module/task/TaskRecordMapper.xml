@@ -14,6 +14,10 @@
             <if test="status != null">
                 AND coalesce(R.status, 0) = #{status}
             </if>
+
+            <if test="keyword != null">
+                AND T.title LIKE #{keyword}
+            </if>
         </where>
         order by R.status, T.create_time
     </select>

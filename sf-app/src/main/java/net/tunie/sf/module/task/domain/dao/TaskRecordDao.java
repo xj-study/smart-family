@@ -2,7 +2,6 @@ package net.tunie.sf.module.task.domain.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import net.tunie.sf.module.task.domain.entity.TaskRecordEntity;
-import net.tunie.sf.module.task.domain.form.TaskRecordQueryForm;
 import net.tunie.sf.module.task.domain.vo.TaskRecordVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -15,5 +14,11 @@ import java.util.List;
 @Component
 public interface TaskRecordDao extends BaseMapper<TaskRecordEntity> {
 
-    List<TaskRecordVo> queryDailyTaskRecord(@Param("taskUserId") Long taskUserId, @Param("recordUserId") Long recordUserId, @Param("taskDate") LocalDate taskData, @Param("status") Integer status);
+    List<TaskRecordVo> queryDailyTaskRecord(
+            @Param("taskUserId") Long taskUserId,
+            @Param("recordUserId") Long recordUserId,
+            @Param("taskDate") LocalDate taskData,
+            @Param("status") Integer status,
+            @Param("keyword") String keyword
+            );
 }

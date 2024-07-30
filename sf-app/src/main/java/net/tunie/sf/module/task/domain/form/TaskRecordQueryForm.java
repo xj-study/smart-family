@@ -2,8 +2,6 @@ package net.tunie.sf.module.task.domain.form;
 
 import lombok.Data;
 
-import java.time.LocalDate;
-
 @Data
 public class TaskRecordQueryForm {
 
@@ -14,5 +12,7 @@ public class TaskRecordQueryForm {
     private Integer status;
 
     private Integer date;
+
+    private String keyword;
 
 }

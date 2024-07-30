@@ -18,6 +18,7 @@ import net.tunie.sf.module.task.domain.entity.TaskIntegralEntity;
 import net.tunie.sf.module.task.domain.form.TaskAddForm;
 import net.tunie.sf.module.task.domain.form.TaskUpdateForm;
 import net.tunie.sf.module.task.domain.vo.TaskVo;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,8 +46,13 @@ public class TaskService extends ServiceImpl<TaskDao, TaskEntity> implements Rul
         return ResponseDTO.ok(taskEntity.getId());
     }
 
-    public ResponseDTO<List<TaskVo>> queryTask(Long requestUserId) {
-        List<TaskVo> taskVos = this.baseMapper.getTaskList(requestUserId);
+    public ResponseDTO<List<TaskVo>> queryTask(Long requestUserId ,String keyword) {
+        if(Strings.isNotBlank(keyword)) {
+            keyword = '%' + keyword + '%';
+        } else {
+            keyword = null;
+        }
+        List<TaskVo> taskVos = this.baseMapper.getTaskList(requestUserId, keyword);
         return ResponseDTO.ok(taskVos);
     }
 

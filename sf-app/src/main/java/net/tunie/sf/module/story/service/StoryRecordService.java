@@ -26,6 +26,7 @@ import net.tunie.sf.module.story.domain.vo.StoryLevelVo;
 import net.tunie.sf.module.story.domain.vo.StoryRecordVo;
 import net.tunie.sf.module.user.domain.form.UserIntegralUpdateForm;
 import net.tunie.sf.module.user.service.UserIntegralService;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -154,11 +155,16 @@ public class StoryRecordService extends ServiceImpl<StoryRecordDao, StoryRecordE
                     StoryLevelEntity storyLevelEntity = storyLevelService.getById(storyRecordUpdateLevelForm.getLevelId());
                     UserIntegralUpdateForm userIntegralUpdateForm = this.buildForm(RecordTypeConst.STORY_LEVEL_PASS, form -> {
                         form.setUserId(storyRecordUpdateLevelForm.getUserId());
-                        form.setRefId(storyRecordUpdateLevelForm.getId());
+                        form.setRefId(storyRecordUpdateLevelForm.getLevelId());
                         form.setIntegralChange(storyLevelEntity.getPrize());
                     });
 
-                    Supplier<String> sfTitle = () -> MessageFormat.format("{0}-{1}", storyRecordUpdateLevelForm.getStoryTitle(), storyLevelEntity.getTitle());
+                    String title = storyLevelEntity.getTitle();
+                    if (Strings.isEmpty(title)) {
+                        title = storyLevelEntity.getLevelOrder().toString();
+                    }
+                    String finalTitle = title;
+                    Supplier<String> sfTitle = () -> MessageFormat.format("{0}-{1}", storyRecordUpdateLevelForm.getStoryTitle(), finalTitle);
                     userIntegralUpdateForm.setContent(this.buildContent(sfTitle, storyLevelEntity::getId, storyRecordEntity::getUpdateTime));
                     return userIntegralUpdateForm;
                 },

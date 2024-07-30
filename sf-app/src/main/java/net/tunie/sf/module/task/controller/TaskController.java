@@ -35,7 +35,7 @@ public class TaskController {
         return taskService.updateTask(taskUpdateForm);
     }
 
-    @GetMapping("/task/disable/{id}")
+    @GetMapping("/task/delete/{id}")
     public ResponseDTO<String> updateDisableFlag(@PathVariable Long id) {
         return taskService.updateDisableFlag(id);
     }

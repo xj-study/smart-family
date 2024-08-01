@@ -19,6 +19,8 @@ public interface TaskRecordDao extends BaseMapper<TaskRecordEntity> {
             @Param("recordUserId") Long recordUserId,
             @Param("taskDate") LocalDate taskData,
             @Param("status") Integer status,
-            @Param("keyword") String keyword
+            @Param("keyword") String keyword,
+            @Param("tagId") Long tagId,
+            @Param("refType") Integer refType
             );
 }

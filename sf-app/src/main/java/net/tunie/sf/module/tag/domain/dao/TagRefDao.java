@@ -13,4 +13,6 @@ public interface TagRefDao extends BaseMapper<TagRefEntity> {
     List<TagVo> getTags(@Param("refId") Long refId, @Param("refType") int refType);
 
     void removeTag(@Param("refId") Long refId, @Param("refType") int refType);
+
+    List<TagVo> getUserTags(@Param("userId") Long userId, @Param("refType") int refType);
 }

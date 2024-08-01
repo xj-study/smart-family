@@ -10,8 +10,12 @@ import java.util.List;
 
 @Service
 public class TagRefService extends ServiceImpl<TagRefDao, TagRefEntity> {
-    public List<TagVo> getTags(Long refId, int type) {
-        return this.baseMapper.getTags(refId, type);
+    public List<TagVo> getTags(Long refId, int refType) {
+        return this.baseMapper.getTags(refId, refType);
+    }
+
+    public List<TagVo> getUserTags(Long userId, int refType) {
+        return this.baseMapper.getUserTags(userId, refType);
     }
     
     public void saveBatch(List<Long> tagIds, Long refId, int refType) {

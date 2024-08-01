@@ -18,4 +18,13 @@
 
 
     </select>
+    <select id="getUserTags" resultType="net.tunie.sf.module.tag.domain.vo.TagVo">
+        select T.id, T.name
+        from t_tag T
+                 left join t_tag_ref R on T.id = R.tag_id
+        where T.user_id = #{userId}
+          and R.ref_type = #{refType}
+        group by T.name
+
+    </select>
 </mapper>

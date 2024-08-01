@@ -15,4 +15,6 @@ public class TaskRecordQueryForm {
 
     private String keyword;
 
+    private Long tagId;
+
 }

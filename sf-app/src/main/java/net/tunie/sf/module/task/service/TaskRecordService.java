@@ -9,10 +9,13 @@ import net.tunie.sf.common.code.UserErrorCode;
 import net.tunie.sf.common.domain.ResponseDTO;
 import net.tunie.sf.common.utils.SmartBeanUtil;
 import net.tunie.sf.common.utils.SmartUserUtil;
+import net.tunie.sf.constant.TagTypeConst;
 import net.tunie.sf.constant.TaskStatusConst;
 import net.tunie.sf.constant.RecordTypeConst;
 import net.tunie.sf.constant.RuleTypeConst;
 import net.tunie.sf.module.login.domain.RequestUser;
+import net.tunie.sf.module.tag.domain.vo.TagVo;
+import net.tunie.sf.module.tag.service.TagRefService;
 import net.tunie.sf.module.task.constant.TaskDateTypeQueryConst;
 import net.tunie.sf.module.task.domain.dao.TaskRecordDao;
 import net.tunie.sf.module.task.domain.entity.TaskEntity;
@@ -41,6 +44,9 @@ public class TaskRecordService extends ServiceImpl<TaskRecordDao, TaskRecordEnti
 
     @Resource
     private UserIntegralService userIntegralService;
+
+    @Resource
+    private TagRefService tagRefService;
 
     private LocalDate getTaskDate(Integer dateType) {
         LocalDate taskDate = LocalDate.now();
@@ -72,7 +78,16 @@ public class TaskRecordService extends ServiceImpl<TaskRecordDao, TaskRecordEnti
             keyword = "%" + keyword + "%";
         }
         List<TaskRecordVo> taskRecordVos = this.baseMapper.queryDailyTaskRecord(
-                taskUserId, recordUserId, taskDate, taskRecordQueryForm.getStatus(), keyword);
+                taskUserId, recordUserId, taskDate, taskRecordQueryForm.getStatus(), keyword, taskRecordQueryForm.getTagId(), TagTypeConst.TASK);
+
+        // 查询关联的tag数据
+        taskRecordVos.forEach(item -> {
+            List<TagVo> tags = tagRefService.getTags(item.getTaskId(), TagTypeConst.TASK);
+            if (tags.isEmpty()) return;
+            item.setTag(tags.stream().map(TagVo::getId).toList());
+            item.setTagStr(Strings.join(tags.stream().map(TagVo::getName).toList(), ','));
+        });
+
         return ResponseDTO.ok(taskRecordVos);
     }
 
@@ -174,5 +189,10 @@ public class TaskRecordService extends ServiceImpl<TaskRecordDao, TaskRecordEnti
         this.updateById(taskRecordEntity);
 
         return ResponseDTO.ok();
+    }
+
+    public ResponseDTO<List<TagVo>> queryTag(Long userId) {
+        List<TagVo> userTags = this.tagRefService.getUserTags(userId, TagTypeConst.TASK);
+        return ResponseDTO.ok(userTags);
     }
 }

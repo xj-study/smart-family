@@ -25,7 +25,7 @@ public class TaskController {
     }
 
     @GetMapping("/task/query")
-    public ResponseDTO<List<TaskVo>> query(@RequestParam String keyword) {
+    public ResponseDTO<List<TaskVo>> query(@RequestParam(required = false) String keyword) {
         return taskService.queryTask(SmartRequestUtil.getRequestUserId(), keyword);
     }
 

@@ -10,6 +10,7 @@ import net.tunie.sf.module.tag.domain.entity.TagEntity;
 import net.tunie.sf.module.tag.domain.form.TagAddForm;
 import net.tunie.sf.module.tag.domain.form.TagUpdateForm;
 import net.tunie.sf.module.tag.domain.vo.TagVo;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,7 +34,9 @@ public class TagService extends ServiceImpl<TagDao, TagEntity> {
     }
 
     public ResponseDTO<List<TagVo>> queryTag(Long requestUserId, String keyword) {
-        List<TagEntity> list = this.list(Wrappers.lambdaQuery(TagEntity.class).eq(TagEntity::getUserId, requestUserId).like(TagEntity::getName, keyword));
+        List<TagEntity> list = this.list(Wrappers.lambdaQuery(TagEntity.class)
+                .eq(TagEntity::getUserId, requestUserId)
+                .like(Strings.isNotBlank(keyword), TagEntity::getName, keyword));
         List<TagVo> tagVos = SmartBeanUtil.copyList(list, TagVo.class);
         return ResponseDTO.ok(tagVos);
     }

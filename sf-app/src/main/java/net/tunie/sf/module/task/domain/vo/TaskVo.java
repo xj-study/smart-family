@@ -3,6 +3,7 @@ package net.tunie.sf.module.task.domain.vo;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class TaskVo {
@@ -23,4 +24,8 @@ public class TaskVo {
     private Integer taskType;
 
     private Integer integral;
+
+    private List<Long> tag;
+
+    private String tagStr;
 }

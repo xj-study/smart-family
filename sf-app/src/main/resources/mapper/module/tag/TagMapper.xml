@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="net.tunie.sf.module.tag.domain.dao.TagRefDao">
+
+    <delete id="removeTag">
+        delete
+        from t_tag_ref
+        where ref_type = #{refType}
+          and ref_id = #{refId}
+    </delete>
+
+    <select id="getTags" resultType="net.tunie.sf.module.tag.domain.vo.TagVo">
+        select T.id, T.name
+        from t_tag_ref R
+                 left join t_tag T on R.tag_id = T.id
+        where R.ref_id = #{refId}
+          and R.ref_type = #{refType}
+
+
+    </select>
+</mapper>

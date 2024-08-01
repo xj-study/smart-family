@@ -24,7 +24,7 @@ public class TagController {
     }
 
     @GetMapping("/tag/query")
-    public ResponseDTO<List<TagVo>> query(@RequestParam String keyword) {
+    public ResponseDTO<List<TagVo>> query(@RequestParam(required = false) String keyword) {
         return tagService.queryTag(SmartRequestUtil.getRequestUserId(), keyword);
     }
 

@@ -2,6 +2,8 @@ package net.tunie.sf.module.task.domain.form;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TaskAddForm {
 
@@ -20,4 +22,6 @@ public class TaskAddForm {
     private Integer taskType;
 
     private Integer integral;
+
+    private List<Long> tag;
 }
